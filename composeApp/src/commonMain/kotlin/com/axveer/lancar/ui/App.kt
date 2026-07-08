@@ -31,7 +31,9 @@ fun App(appModule: AppModule) {
                 MainScaffold(
                     appModule = appModule,
                     onOpenModule = { moduleId -> nav.navigate(Drill(moduleId)) },
-                    onReplayOnboarding = { nav.navigate(Onboarding) },
+                    onReplayOnboarding = {
+                        nav.navigate(Onboarding) { popUpTo<Main> { inclusive = true } }
+                    },
                 )
             }
             composable<Drill> { entry ->
