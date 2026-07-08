@@ -25,7 +25,7 @@ function transcode(oggName: string): string {
   const m4aName = oggName.replace(/\.ogg$/, ".m4a");
   const dst = join(AUDIO_OUT, m4aName);
   if (!existsSync(dst)) {
-    execFileSync("/opt/homebrew/bin/ffmpeg", ["-y", "-i", src, "-c:a", "aac", "-b:a", "64k", dst],
+    execFileSync("ffmpeg", ["-y", "-i", src, "-c:a", "aac", "-b:a", "64k", dst],
       { stdio: "ignore" });
   }
   return m4aName;
