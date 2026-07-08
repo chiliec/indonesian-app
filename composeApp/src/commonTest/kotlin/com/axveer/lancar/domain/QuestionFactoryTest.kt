@@ -3,7 +3,7 @@ package com.axveer.lancar.domain
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.fail
 
 private fun card(id: String, indo: String, en: String, audio: String? = null) =
     Card(id = id, indonesian = indo, english = en, audio = audio)
@@ -31,10 +31,10 @@ class QuestionFactoryTest {
     }
 
     @Test fun masteredCardCanRollProduce() {
-        // find a seed where nextInt(5)==0 on first call
-        val q = QuestionFactory(Random(4)).build(pool[0], pool, isMastered = true)
-        // With seed 4, Random.nextInt(5) yields 0 -> PRODUCE (verified by the run below).
-        assertTrue(q.mode == QuestionMode.PRODUCE || q.mode == QuestionMode.LISTEN)
+        // Use nextBits=0 override so nextInt(5)==0 deterministically → PRODUCE
+        val rng = object : Random() { override fun nextBits(bitCount: Int) = 0 }
+        val q = QuestionFactory(rng).build(pool[0], pool, isMastered = true)
+        assertEquals(QuestionMode.PRODUCE, q.mode)
     }
 
     @Test fun alwaysFourDistinctOptionsWithCorrectAnswer() {
@@ -45,10 +45,10 @@ class QuestionFactoryTest {
     }
 
     @Test fun produceOptionsAreIndonesian() {
-        // force PRODUCE by finding a mastered roll; fall back asserts side when produce occurs
-        val q = QuestionFactory(Random(4)).build(pool[0], pool, isMastered = true)
-        if (q.mode == QuestionMode.PRODUCE) {
-            assertEquals("satu", q.options[q.correctIndex])
-        }
+        // nextBits=0 → PRODUCE; correct answer must be the Indonesian form
+        val rng = object : Random() { override fun nextBits(bitCount: Int) = 0 }
+        val q = QuestionFactory(rng).build(pool[0], pool, isMastered = true)
+        assertEquals(QuestionMode.PRODUCE, q.mode)
+        assertEquals("satu", q.options[q.correctIndex])
     }
 }
