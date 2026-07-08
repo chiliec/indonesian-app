@@ -5,6 +5,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.axveer.lancar.data.ContentRepository
 import com.axveer.lancar.data.DriverFactory
 import com.axveer.lancar.data.ProgressRepository
+import com.axveer.lancar.data.SettingsRepository
 import com.axveer.lancar.db.LancarDatabase
 import com.axveer.lancar.platform.IosAudioPlayer
 import com.axveer.lancar.ui.App
@@ -16,6 +17,7 @@ fun MainViewController() = ComposeUIViewController(configure = { enforceStrictPl
         AppModule(
             content = ContentRepository(),
             progress = ProgressRepository(db),
+            settings = SettingsRepository(db),
             audio = IosAudioPlayer(),
         )
     }
