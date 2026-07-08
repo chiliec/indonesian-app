@@ -8,6 +8,8 @@ class ProgressRepository(private val db: LancarDatabase) {
     private val q = db.progressQueries
 
     fun recordAnswer(cardId: String, correct: Boolean) {
+        // Two queries instead of a single UPSERT: insertOrIgnore seeds zeros, then updateAnswer
+        // increments. Both must always run together; the intermediate zero-row state is private.
         q.insertOrIgnore(cardId = cardId)
         q.updateAnswer(
             cardId = cardId,
