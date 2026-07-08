@@ -14,11 +14,11 @@ import com.axveer.lancar.ui.AppModule
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = LancarDatabase(DriverFactory(this).createDriver())
+        val db = LancarDatabase(DriverFactory(applicationContext).createDriver())
         val appModule = AppModule(
             content = ContentRepository(),
             progress = ProgressRepository(db),
-            audio = AndroidAudioPlayer(this),
+            audio = AndroidAudioPlayer(applicationContext),
         )
         setContent { App(appModule) }
     }
