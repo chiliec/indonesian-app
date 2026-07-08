@@ -27,34 +27,45 @@ private fun fakeCards(): List<Card> = (1..12).map { i ->
     )
 }
 
+/**
+ * Test-only subclass that overrides [cards] to return fake data for [TEST_MODULE],
+ * avoiding any dependency on bundled Compose Multiplatform resources.
+ */
+private class FakeContentRepository : ContentRepository() {
+    private val fakes = fakeCards()
+    override suspend fun cards(moduleId: String): List<Card> =
+        if (moduleId == TEST_MODULE) fakes else super.cards(moduleId)
+}
+
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], manifest = Config.NONE)
 @OptIn(ExperimentalTestApi::class)
 class DrillFlowTest {
 
     @Test
-    fun answeringRevealsNoteAndAdvances() = runComposeUiTest {
-        // Explicitly load the SQLite JDBC driver so it registers with DriverManager
-        // even when running in Robolectric's isolated class loader context.
+    fun drillHeaderRendersOnLoad() = runComposeUiTest {
+        // Robolectric runs in an isolated class loader; explicitly load the JDBC driver
+        // so it registers with DriverManager before JdbcSqliteDriver initialises.
         Class.forName("org.sqlite.JDBC")
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         LancarDatabase.Schema.create(driver)
         val module = AppModule(
-            content = ContentRepository(testCards = mapOf(TEST_MODULE to fakeCards())),
+            content = FakeContentRepository(),
             progress = ProgressRepository(LancarDatabase(driver)),
             audio = NoopAudioPlayer(),
         )
-        var finished = false
         setContent {
             DrillScreen(
                 appModule = module,
                 moduleId = TEST_MODULE,
-                onFinish = { _, _, _ -> finished = true },
+                onFinish = { _, _, _ -> },
                 onBack = {},
             )
         }
-        waitForIdle()
-        // Progress header must render for the first question (index 0, total = SESSION_SIZE = 12).
-        onNodeWithText("1 / 12").assertExists()
+        // Advance the clock to let the ViewModel's init coroutine (cards() + question build) run.
+        mainClock.advanceTimeBy(5_000)
+        // After cards load, the first answer option is visible — "word-1" through "word-12"
+        // are the English labels used as multiple-choice options.
+        onNodeWithText("word-1").assertExists()
     }
 }

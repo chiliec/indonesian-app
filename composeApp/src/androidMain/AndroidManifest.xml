@@ -12,7 +12,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- Required by Compose UI tests running under Robolectric -->
+        <!--
+            Required for runComposeUiTest (Robolectric) to launch ComponentActivity via
+            ActivityScenario. This manifest is the one AGP exposes to the Robolectric
+            classloader (via isIncludeAndroidResources = true); the androidUnitTest
+            source-set manifest is not merged into that path, so the entry must live here.
+        -->
         <activity
             android:name="androidx.activity.ComponentActivity"
             android:exported="false" />

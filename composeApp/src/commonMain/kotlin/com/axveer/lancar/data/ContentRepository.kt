@@ -11,10 +11,7 @@ import lancar.composeapp.generated.resources.Res
 
 const val MIXED_ID = "mixed"
 
-class ContentRepository(
-    /** Non-null only in tests: bypasses Res.readBytes for a specific module id. */
-    private val testCards: Map<String, List<Card>> = emptyMap(),
-) {
+open class ContentRepository {
     private val json = Json { ignoreUnknownKeys = true }
     private val cardCache = mutableMapOf<String, List<Card>>()
     private var metaCache: List<ModuleMeta>? = null
@@ -32,9 +29,9 @@ class ContentRepository(
         return list
     }
 
-    suspend fun cards(moduleId: String): List<Card> {
+    open suspend fun cards(moduleId: String): List<Card> {
         cardCache[moduleId]?.let { return it }
-        val result = testCards[moduleId] ?: if (moduleId == MIXED_ID) {
+        val result = if (moduleId == MIXED_ID) {
             modules().filter { it.id != MIXED_ID }.flatMap { cards(it.id) }
         } else {
             val text = Res.readBytes("files/content/$moduleId.json").decodeToString()

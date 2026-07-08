@@ -7,9 +7,10 @@ import kotlin.test.assertEquals
 
 class ProgressRepositoryTest {
     private fun repo(): ProgressRepository {
-        // Explicitly load the SQLite JDBC driver so it registers with DriverManager
-        // even when running in an isolated class loader (e.g. Robolectric).
-        Class.forName("org.sqlite.JDBC")
+        // Robolectric's class-loader isolation can deregister JDBC drivers between test
+        // classes; explicitly loading the driver ensures it is registered for this suite.
+        @Suppress("SwallowedException")
+        try { Class.forName("org.sqlite.JDBC") } catch (_: ClassNotFoundException) { }
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         LancarDatabase.Schema.create(driver)
         return ProgressRepository(LancarDatabase(driver))
