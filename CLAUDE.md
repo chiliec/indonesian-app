@@ -18,7 +18,7 @@ UI (Compose, immutable UiState, one ViewModel per screen, unidirectional data fl
 - Android: `./gradlew :composeApp:assembleDebug`
 - iOS (framework only): `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
 - iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=057ACF07-A2C3-446D-A734-99AA3CB773AE' build`
-- iOS (run on simulator): `xcrun simctl install <sim-id> <app-path> && xcrun simctl launch <sim-id> com.axveer.lancar`
+- iOS (run on simulator): `xcrun simctl install <sim-id> <app-path> && xcrun simctl launch <sim-id> cx.viz.lancar`
 - Tests: `./gradlew :composeApp:testDebugUnitTest`
 
 ## Environment requirements
