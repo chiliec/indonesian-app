@@ -10,7 +10,7 @@ import com.axveer.lancar.platform.IosAudioPlayer
 import com.axveer.lancar.ui.App
 import com.axveer.lancar.ui.AppModule
 
-fun MainViewController() = ComposeUIViewController {
+fun MainViewController() = ComposeUIViewController(configure = { enforceStrictPlistSanityCheck = false }) {
     val db = remember { LancarDatabase(DriverFactory().createDriver()) }
     val appModule = remember {
         AppModule(

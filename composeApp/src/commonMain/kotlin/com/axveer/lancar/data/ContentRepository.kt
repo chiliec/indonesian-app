@@ -5,6 +5,7 @@ import com.axveer.lancar.domain.ModuleMeta
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import lancar.composeapp.generated.resources.Res
 
@@ -14,7 +15,7 @@ import lancar.composeapp.generated.resources.Res
 const val MIXED_ID = "mixed"
 
 open class ContentRepository {
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json { ignoreUnknownKeys = true; useAlternativeNames = false }
     private val cacheMutex = Mutex()
     private val cardCache = mutableMapOf<String, List<Card>>()
     private var metaCache: List<ModuleMeta>? = null
@@ -38,7 +39,7 @@ open class ContentRepository {
             modules().filter { it.id != MIXED_ID }.flatMap { cards(it.id) }
         } else {
             val text = Res.readBytes("files/content/$moduleId.json").decodeToString()
-            json.decodeFromString<List<Card>>(text)
+            json.decodeFromString(ListSerializer(Card.serializer()), text)
         }
         cacheMutex.withLock { cardCache[moduleId] = result }
         return result

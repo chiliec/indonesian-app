@@ -8,8 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F3 /* iOSApp.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E1F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F5 /* ContentView.swift */; };
 		A3B2C3D4E5F6A7B8C9D0E1F2 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A3B2C3D4E5F6A7B8C9D0E1F1 /* libsqlite3.tbd */; };
+		A4B2C3D4E5F6A7B8C9D0E1F1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B2C3D4E5F6A7B8C9D0E1F2 /* AppDelegate.swift */; };
+		A4B2C3D4E5F6A7B8C9D0E1F3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B2C3D4E5F6A7B8C9D0E1F4 /* SceneDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -17,6 +18,9 @@
 		A1B2C3D4E5F6A7B8C9D0E1F5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A7B8C9D0E1F6 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3B2C3D4E5F6A7B8C9D0E1F1 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		A3B2C3D4E5F6A7B8C9D0E1F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A4B2C3D4E5F6A7B8C9D0E1F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A4B2C3D4E5F6A7B8C9D0E1F4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,7 +39,9 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F6A7B8C9D0E1F3 /* iOSApp.swift */,
-				A1B2C3D4E5F6A7B8C9D0E1F5 /* ContentView.swift */,
+				A4B2C3D4E5F6A7B8C9D0E1F2 /* AppDelegate.swift */,
+				A4B2C3D4E5F6A7B8C9D0E1F4 /* SceneDelegate.swift */,
+				A3B2C3D4E5F6A7B8C9D0E1F3 /* Info.plist */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -135,7 +141,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* iOSApp.swift in Sources */,
-				A1B2C3D4E5F6A7B8C9D0E1F4 /* ContentView.swift in Sources */,
+				A4B2C3D4E5F6A7B8C9D0E1F1 /* AppDelegate.swift in Sources */,
+				A4B2C3D4E5F6A7B8C9D0E1F3 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,12 +205,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = iosApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -227,12 +230,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = iosApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
