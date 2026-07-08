@@ -10,12 +10,13 @@ import com.axveer.lancar.ui.home.HomeScreen
 import com.axveer.lancar.ui.results.ResultsScreen
 import com.axveer.lancar.ui.theme.LancarTheme
 
+// TODO(Task 9): replace with Onboarding/Main tab shell once those screens exist.
 @Composable
 fun App(appModule: AppModule) {
     LancarTheme {
         val nav = rememberNavController()
-        NavHost(navController = nav, startDestination = Home) {
-            composable<Home> {
+        NavHost(navController = nav, startDestination = Onboarding) {
+            composable<Onboarding> {
                 HomeScreen(appModule) { moduleId -> nav.navigate(Drill(moduleId)) }
             }
             composable<Drill> { entry ->
@@ -23,7 +24,7 @@ fun App(appModule: AppModule) {
                 DrillScreen(appModule, args.moduleId,
                     onFinish = { correct, total, mastered ->
                         nav.navigate(Results(args.moduleId, correct, total, mastered)) {
-                            popUpTo(Home)
+                            popUpTo<Onboarding>()
                         }
                     },
                     onBack = { nav.popBackStack() })
@@ -31,8 +32,8 @@ fun App(appModule: AppModule) {
             composable<Results> { entry ->
                 val r = entry.toRoute<Results>()
                 ResultsScreen(r,
-                    onAgain = { nav.navigate(Drill(r.moduleId)) { popUpTo(Home) } },
-                    onHome = { nav.popBackStack(Home, inclusive = false) })
+                    onAgain = { nav.navigate(Drill(r.moduleId)) { popUpTo<Onboarding>() } },
+                    onHome = { nav.popBackStack<Onboarding>(inclusive = false) })
             }
         }
     }

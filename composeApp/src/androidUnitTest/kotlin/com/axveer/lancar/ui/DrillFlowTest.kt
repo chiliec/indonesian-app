@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.axveer.lancar.data.ContentRepository
 import com.axveer.lancar.data.ProgressRepository
+import com.axveer.lancar.data.SettingsRepository
 import com.axveer.lancar.db.LancarDatabase
 import com.axveer.lancar.domain.Card
 import com.axveer.lancar.platform.NoopAudioPlayer
@@ -49,9 +50,11 @@ class DrillFlowTest {
         Class.forName("org.sqlite.JDBC")
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         LancarDatabase.Schema.create(driver)
+        val db = LancarDatabase(driver)
         val module = AppModule(
             content = FakeContentRepository(),
-            progress = ProgressRepository(LancarDatabase(driver)),
+            progress = ProgressRepository(db),
+            settings = SettingsRepository(db),
             audio = NoopAudioPlayer(),
         )
         setContent {
