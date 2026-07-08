@@ -33,4 +33,6 @@ class ProgressRepository(private val db: LancarDatabase) {
 
     fun modulePercent(cardIds: List<String>): Int =
         MasteryCalculator.modulePercent(cardIds, forCards(cardIds))
+
+    fun reset() = q.deleteAll()
 }

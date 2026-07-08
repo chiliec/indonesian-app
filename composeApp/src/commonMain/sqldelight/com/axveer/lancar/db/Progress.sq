@@ -20,3 +20,6 @@ UPDATE card_progress SET
     wrong = wrong + :wrongInc,
     last_seen = :now
 WHERE card_id = :cardId;
+
+deleteAll:
+DELETE FROM card_progress;

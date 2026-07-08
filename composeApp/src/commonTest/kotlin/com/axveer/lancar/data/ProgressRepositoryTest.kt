@@ -4,6 +4,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.axveer.lancar.db.LancarDatabase
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ProgressRepositoryTest {
     private fun repo(): ProgressRepository {
@@ -32,5 +33,13 @@ class ProgressRepositoryTest {
         r.recordAnswer("b", correct = false)  // not mastered
         assertEquals(50, r.modulePercent(listOf("a", "b")))
         assertEquals(0, r.modulePercent(emptyList()))
+    }
+
+    @Test fun resetClearsMastery() {
+        val r = repo()
+        r.recordAnswer("a", correct = true)
+        r.reset()
+        assertEquals(0, r.modulePercent(listOf("a")))
+        assertEquals(emptyMap(), r.forCards(listOf("a")))
     }
 }
