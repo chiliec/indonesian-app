@@ -26,7 +26,7 @@ import com.axveer.lancar.ui.AppModule
 import com.axveer.lancar.ui.theme.LancarBorder
 import com.axveer.lancar.ui.theme.LancarPanel
 import com.axveer.lancar.ui.theme.LancarSecondaryText
-import com.axveer.lancar.ui.theme.LancarTerracotta
+import com.axveer.lancar.ui.theme.LocalAccentColor
 
 @Composable
 fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
@@ -37,7 +37,7 @@ fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (state.loading) {
             Box(Modifier.fillMaxSize(), Alignment.Center) {
-                CircularProgressIndicator(color = LancarTerracotta)
+                CircularProgressIndicator(color = LocalAccentColor.current)
             }
         } else {
             LazyColumn(
@@ -69,7 +69,7 @@ private fun Header(name: String) {
                 letterSpacing = 1.5.sp,
             )
             Spacer(Modifier.width(6.dp))
-            Box(Modifier.size(9.dp).clip(CircleShape).background(LancarTerracotta))
+            Box(Modifier.size(9.dp).clip(CircleShape).background(LocalAccentColor.current))
         }
         Spacer(Modifier.height(14.dp))
         Text(
@@ -108,7 +108,7 @@ private fun ModuleCard(
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(99.dp)),
-            color = LancarTerracotta,
+            color = LocalAccentColor.current,
             trackColor = LancarPanel,
             gapSize = 0.dp,
             drawStopIndicator = {},

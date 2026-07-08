@@ -40,7 +40,7 @@ fun DrillScreen(
         Box(
             Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             Alignment.Center,
-        ) { CircularProgressIndicator(color = LancarTerracotta) }
+        ) { CircularProgressIndicator(color = LocalAccentColor.current) }
         return
     }
 
@@ -67,7 +67,7 @@ fun DrillScreen(
             LinearProgressIndicator(
                 progress = { (state.index + if (state.answered) 1 else 0).toFloat() / state.total },
                 modifier = Modifier.weight(1f).height(10.dp).clip(RoundedCornerShape(99.dp)),
-                color = LancarTerracotta,
+                color = LocalAccentColor.current,
                 trackColor = LancarPanel,
                 gapSize = 0.dp,
                 drawStopIndicator = {},
@@ -81,7 +81,7 @@ fun DrillScreen(
         }
 
         Spacer(Modifier.height(30.dp))
-        Text(kindLabel, style = MaterialTheme.typography.labelMedium, color = LancarTerracotta, letterSpacing = 2.sp)
+        Text(kindLabel, style = MaterialTheme.typography.labelMedium, color = LocalAccentColor.current, letterSpacing = 2.sp)
         Spacer(Modifier.height(10.dp))
 
         if (q.mode == QuestionMode.LISTEN) {
@@ -128,7 +128,7 @@ private fun AudioButton(onPlay: () -> Unit) {
     Row(
         Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(LancarTerracotta)
+            .background(LocalAccentColor.current)
             .clickable(onClick = onPlay)
             .padding(horizontal = 22.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,

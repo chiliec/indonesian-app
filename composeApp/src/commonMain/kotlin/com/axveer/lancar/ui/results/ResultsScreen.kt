@@ -17,7 +17,7 @@ import com.axveer.lancar.ui.Results
 import com.axveer.lancar.ui.theme.LancarAmber
 import com.axveer.lancar.ui.theme.LancarCream
 import com.axveer.lancar.ui.theme.LancarInk
-import com.axveer.lancar.ui.theme.LancarTerracotta
+import com.axveer.lancar.ui.theme.LocalAccentColor
 
 @Composable
 fun ResultsScreen(r: Results, onAgain: () -> Unit, onHome: () -> Unit) {
@@ -75,7 +75,7 @@ private fun PrimaryButton(label: String, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
-            .background(LancarTerracotta)
+            .background(LocalAccentColor.current)
             .clickable(onClick = onClick)
             .padding(vertical = 18.dp),
         contentAlignment = Alignment.Center,
