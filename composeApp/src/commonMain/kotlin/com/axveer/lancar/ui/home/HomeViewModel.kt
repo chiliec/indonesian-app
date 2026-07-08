@@ -11,7 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class ModuleRow(val id: String, val title: String, val cardCount: Int, val masteryPct: Int)
-data class HomeUiState(val modules: List<ModuleRow> = emptyList(), val loading: Boolean = true)
+data class HomeUiState(
+    val modules: List<ModuleRow> = emptyList(),
+    val loading: Boolean = true,
+    val name: String = "",
+)
 
 class HomeViewModel(private val module: AppModule) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -28,7 +32,7 @@ class HomeViewModel(private val module: AppModule) {
                 val ids = module.content.cards(m.id).map { it.id }
                 ModuleRow(m.id, m.title, m.cardCount, module.progress.modulePercent(ids))
             }
-            _state.value = HomeUiState(rows, loading = false)
+            _state.value = HomeUiState(rows, loading = false, name = module.settings.displayName().orEmpty())
         }
     }
 

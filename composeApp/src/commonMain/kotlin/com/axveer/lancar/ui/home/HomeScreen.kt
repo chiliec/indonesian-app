@@ -45,7 +45,7 @@ fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
                 contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 64.dp, bottom = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                item { Header() }
+                item { Header(state.name) }
                 items(state.modules, key = { it.id }) { row ->
                     ModuleCard(
                         title = row.title,
@@ -60,7 +60,7 @@ fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
 }
 
 @Composable
-private fun Header() {
+private fun Header(name: String) {
     Column(Modifier.padding(bottom = 8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -72,7 +72,10 @@ private fun Header() {
             Box(Modifier.size(9.dp).clip(CircleShape).background(LancarTerracotta))
         }
         Spacer(Modifier.height(14.dp))
-        Text("Selamat datang.", style = MaterialTheme.typography.displaySmall)
+        Text(
+            if (name.isBlank()) "Selamat datang." else "Halo, $name.",
+            style = MaterialTheme.typography.displaySmall,
+        )
         Spacer(Modifier.height(6.dp))
         Text(
             "Pilih pelajaran — pick a module to practice.",
