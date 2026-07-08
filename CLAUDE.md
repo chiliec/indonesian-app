@@ -53,6 +53,12 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
 ## Agent skills
 Match this project's module name `composeApp` and package `com.axveer.lancar`.
 
-## Out of scope (v1) — clean seams exist for later
+## Shipped features
+- **Onboarding** (2-step: welcome + optional name) — gates first cold start
+- **App shell** (2-tab floating pill bar: Beranda + Profil)
+- **Profile** — edit name, pick accent color (terracotta/green/blue), reset mastery, replay onboarding, about
+- **Accent theming** — `Accent` enum + `LocalAccentColor` CompositionLocal; persisted via `SettingsRepository`
+
+## Out of scope (still deferred) — clean seams exist for later
 Scenarios / Claude role-play, STT/TTS, accounts/sync, monetization, SRS scheduling,
-sentence audio, card-browse screen.
+sentence audio, card-browse screen (Kartu tab).

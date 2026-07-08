@@ -22,12 +22,16 @@ Compose Multiplatform screens with immutable `UiState` data classes and one View
 **ViewModels are not subclasses of `androidx.lifecycle.ViewModel`.** They own a `CoroutineScope(SupervisorJob() + Dispatchers.Main)` directly and expose a `dispose()` function. The host screen calls `DisposableEffect(vm) { onDispose { vm.dispose() } }` to cancel the scope on leave. This avoids the `lifecycle-viewmodel` dependency on K/N.
 
 Key files:
-- `ui/App.kt` — `NavHost` wiring, `MaterialTheme` wrapper
-- `ui/AppModule.kt` — DI container (holds `ContentRepository`, `ProgressRepository`, `AudioPlayer`, `QuestionFactory`)
-- `ui/Routes.kt` — type-safe route objects (`Home`, `Drill`, `Results`)
-- `ui/home/HomeScreen.kt` + `HomeViewModel.kt`
-- `ui/drill/DrillScreen.kt` + `DrillViewModel.kt`
-- `ui/results/ResultsScreen.kt`
+- `ui/App.kt` — `NavHost` wiring; gates on `onboardingSeen`; wraps in `LancarTheme(accent=…)`
+- `ui/AppModule.kt` — DI container (`ContentRepository`, `ProgressRepository`, `SettingsRepository`, `AudioPlayer`, `QuestionFactory`); owns `accent: StateFlow<Accent>` and `setAccent()`
+- `ui/Routes.kt` — type-safe route objects: `Onboarding`, `Main`, `Drill`, `Results`; `startDestination(onboardingSeen)` gate function
+- `ui/onboarding/OnboardingScreen.kt` + `OnboardingViewModel.kt` — 2-step welcome + name flow
+- `ui/main/MainScaffold.kt` — floating pill tab bar hosting Beranda + Profil tabs
+- `ui/home/HomeScreen.kt` + `HomeViewModel.kt` — greets by name; uses `LocalAccentColor`
+- `ui/profile/ProfileScreen.kt` + `ProfileViewModel.kt` — name edit, accent picker, reset, replay, about
+- `ui/drill/DrillScreen.kt` + `DrillViewModel.kt` — full-screen over Main; uses `LocalAccentColor`
+- `ui/results/ResultsScreen.kt` — uses `LocalAccentColor`
+- `ui/theme/Accent.kt` — `enum class Accent(color)` (TERRACOTTA/GREEN/BLUE) + `fromName()`; `LocalAccentColor` CompositionLocal in `Theme.kt`
 
 ### Domain (`domain/`)
 
@@ -40,8 +44,11 @@ Pure Kotlin. No framework imports.
 ### Data (`data/`)
 
 - `ContentRepository.kt` — reads bundled JSON from `composeResources/files/content/` using `Res.readBytes`; caches in memory; exposes `modules()` and `cards(moduleId)`
-- `ProgressRepository.kt` — SQLDelight-backed; stores per-card answer history; exposes `recordAnswer`, `forCards`, `modulePercent`
+- `ProgressRepository.kt` — SQLDelight-backed; stores per-card answer history; exposes `recordAnswer`, `forCards`, `modulePercent`, `reset()`
+- `SettingsRepository.kt` — SQLDelight-backed KV store (`app_settings` table); exposes `displayName`, `setDisplayName`, `onboardingSeen`, `markOnboardingSeen`, `accentName`, `setAccentName`
 - `DriverFactory.kt` — `expect class` with `createDriver(): SqlDriver`; platform `actual` implementations in `androidMain` and `iosMain`
+
+**Schema note:** Adding the `app_settings` table (Task 1) bumped the logical schema. Existing installs require a clean reinstall to get the new table — SQLDelight 2.0.2's Gradle DSL does not expose a `schemaVersion` setter, so formal migrations are deferred until a SQLDelight upgrade.
 
 ### iOS entry point
 
