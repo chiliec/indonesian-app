@@ -1,6 +1,5 @@
 package com.axveer.lancar.ui
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,10 +8,11 @@ import androidx.navigation.toRoute
 import com.axveer.lancar.ui.drill.DrillScreen
 import com.axveer.lancar.ui.home.HomeScreen
 import com.axveer.lancar.ui.results.ResultsScreen
+import com.axveer.lancar.ui.theme.LancarTheme
 
 @Composable
 fun App(appModule: AppModule) {
-    MaterialTheme {
+    LancarTheme {
         val nav = rememberNavController()
         NavHost(navController = nav, startDestination = Home) {
             composable<Home> {

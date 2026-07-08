@@ -1,50 +1,114 @@
 package com.axveer.lancar.ui.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.axveer.lancar.ui.AppModule
+import com.axveer.lancar.ui.theme.LancarBorder
+import com.axveer.lancar.ui.theme.LancarPanel
+import com.axveer.lancar.ui.theme.LancarSecondaryText
+import com.axveer.lancar.ui.theme.LancarTerracotta
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
     val vm = remember { HomeViewModel(appModule) }
     DisposableEffect(vm) { onDispose { vm.dispose() } }
     val state by vm.state.collectAsState()
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Lancar") }) }) { pad ->
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         if (state.loading) {
-            Box(Modifier.fillMaxSize().padding(pad), Alignment.Center) { CircularProgressIndicator() }
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                CircularProgressIndicator(color = LancarTerracotta)
+            }
         } else {
-            LazyColumn(Modifier.fillMaxSize().padding(pad).padding(16.dp)) {
+            LazyColumn(
+                Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 64.dp, bottom = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                item { Header() }
                 items(state.modules, key = { it.id }) { row ->
-                    ElevatedCard(
-                        Modifier.fillMaxWidth().padding(vertical = 6.dp)
-                            .clickable { onOpenModule(row.id) }
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(row.title, style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.height(4.dp))
-                            Text("${row.cardCount} words · ${row.masteryPct}% mastered",
-                                style = MaterialTheme.typography.bodySmall)
-                            Spacer(Modifier.height(8.dp))
-                            LinearProgressIndicator(
-                                progress = { row.masteryPct / 100f },
-                                modifier = Modifier.fillMaxWidth())
-                        }
-                    }
+                    ModuleCard(
+                        title = row.title,
+                        subtitle = "${row.cardCount} kata · ${row.masteryPct}% mastered",
+                        progress = row.masteryPct / 100f,
+                        onClick = { onOpenModule(row.id) },
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Header() {
+    Column(Modifier.padding(bottom = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "LANCAR",
+                style = MaterialTheme.typography.titleMedium,
+                letterSpacing = 1.5.sp,
+            )
+            Spacer(Modifier.width(6.dp))
+            Box(Modifier.size(9.dp).clip(CircleShape).background(LancarTerracotta))
+        }
+        Spacer(Modifier.height(14.dp))
+        Text("Selamat datang.", style = MaterialTheme.typography.displaySmall)
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "Pilih pelajaran — pick a module to practice.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = LancarSecondaryText,
+        )
+    }
+}
+
+@Composable
+private fun ModuleCard(
+    title: String,
+    subtitle: String,
+    progress: Float,
+    onClick: () -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.5.dp, LancarBorder, RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(18.dp),
+    ) {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(4.dp))
+        Text(subtitle, style = MaterialTheme.typography.bodySmall, color = LancarSecondaryText)
+        Spacer(Modifier.height(12.dp))
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(99.dp)),
+            color = LancarTerracotta,
+            trackColor = LancarPanel,
+            gapSize = 0.dp,
+            drawStopIndicator = {},
+        )
     }
 }

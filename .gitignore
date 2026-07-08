@@ -7,3 +7,5 @@ local.properties
 xcuserdata/
 .DS_Store
 content-prep/node_modules/
+
+.kotlin/

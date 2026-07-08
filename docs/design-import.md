@@ -1,25 +1,48 @@
 # Design import
 
-## Visual reference
+## Source of truth
 
-The Lancar visual reference lives in a Claude Design project:
+The design was delivered as a **Claude Design handoff bundle**:
+`Bahasa Indonesia iOS app-handoff.zip` (repo root). Inside:
+`bahasa-indonesia-ios-app/project/Lancar iOS App.dc.html` — an HTML/CSS/JS
+prototype of the full app (onboarding, home, flashcards, lesson, progress,
+profile) with the color and type tokens inline.
 
-- **Project ID:** `47fb9cbc-d3eb-4f17-9138-05ba6b535434`
-- **File:** `Lancar iOS App.dc.html`
+## Status: imported (palette + typography + screen restyle)
 
-## How to import
+As of 2026-07-08 the design tokens are applied to the existing screens
+(no new features — see scope note). Implementation lives in
+`composeApp/src/commonMain/kotlin/com/axveer/lancar/ui/theme/Theme.kt`.
 
-The design file is accessed via the `claude_design` MCP server:
+### Color tokens (`Theme.kt`)
+| Token | Hex | Role |
+|---|---|---|
+| Terracotta | `#C8502B` | primary / CTAs / progress fill |
+| Green | `#2F6B4F` | secondary / correct-answer border |
+| Amber | `#E9A93D` | tertiary / stats |
+| Ink | `#1E2B24` | text, dark panels |
+| Cream | `#FAF4E8` | app background |
+| Surface | `#FFFDF8` | cards |
+| Secondary text | `#5A5244` | captions |
+| Border | `#E5D9C3` | card outlines |
+| Panel | `#F1E7D4` | muted fills / progress track |
+| Correct | bg `#E4F0E8` / text `#1E4433` | right answer |
+| Wrong | bg `#F9E2DB` / text `#7A2313` / border `#B3341C` | wrong answer |
 
-1. Run `/design-login` in Claude Code to authenticate.
-2. Connect the MCP endpoint: `https://api.anthropic.com/v1/design/mcp`
-3. Import the project by its ID (`47fb9cbc-d3eb-4f17-9138-05ba6b535434`).
-4. Open `Lancar iOS App.dc.html` to browse color and type tokens.
+Alternate accents offered by the design: green `#2F6B4F`, blue `#31547E`.
 
-## Applying tokens to the app
+### Typography (`Theme.kt`)
+- **Headings:** Bricolage Grotesque (Bold 700, ExtraBold 800)
+- **Body:** Instrument Sans (Regular/Medium/SemiBold/Bold)
+- Fonts bundled as **static instances** sliced from the Google Fonts variable
+  TTFs (via `fonttools varLib.instancer`) into
+  `composeApp/src/commonMain/composeResources/font/` — variable-axis fonts
+  were avoided for K/N rendering safety. Regenerate with `fonttools
+  varLib.instancer <var>.ttf wght=<w> [opsz=14 wdth=100] -o <out>.ttf`.
 
-The entry point for theming is `composeApp/src/commonMain/kotlin/com/axveer/lancar/ui/App.kt`. The `App` composable wraps all content in `MaterialTheme`. Color and typography overrides go here as a custom `MaterialTheme(colorScheme = ..., typography = ...)` call derived from the design tokens.
+## Not yet built (design shows, v1 scope excludes)
 
-## v1 scope note
-
-v1 ships a neutral Material 3 theme (no token overrides). The design import step is deferred — the visual reference guides layout intent and color direction, but the functionality is intentionally rethought for the KMP context rather than ported 1:1 from the iOS mockup.
+The prototype depicts features intentionally **out of v1 scope** in `CLAUDE.md`:
+onboarding flow, streak/XP/levels, flip-style flashcards, Profile tab, and the
+"Kalimat hari ini" / lesson framing. The current app is module-browse →
+4-option drill → results. Revisit scope before building these.
