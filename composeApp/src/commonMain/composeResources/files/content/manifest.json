@@ -1,0 +1,44 @@
+{
+  "modules": [
+    {
+      "id": "module-1",
+      "title": "Module 1",
+      "cardCount": 256
+    },
+    {
+      "id": "module-2",
+      "title": "Module 2",
+      "cardCount": 249
+    },
+    {
+      "id": "module-3",
+      "title": "Module 3",
+      "cardCount": 269
+    },
+    {
+      "id": "module-4",
+      "title": "Module 4",
+      "cardCount": 203
+    },
+    {
+      "id": "module-5",
+      "title": "Module 5",
+      "cardCount": 236
+    },
+    {
+      "id": "module-6",
+      "title": "Module 6",
+      "cardCount": 202
+    },
+    {
+      "id": "module-7",
+      "title": "Module 7",
+      "cardCount": 139
+    },
+    {
+      "id": "module-8",
+      "title": "Module 8",
+      "cardCount": 242
+    }
+  ]
+}
