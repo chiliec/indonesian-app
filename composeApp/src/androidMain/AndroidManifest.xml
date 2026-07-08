@@ -12,5 +12,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Required by Compose UI tests running under Robolectric -->
+        <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:exported="false" />
     </application>
 </manifest>

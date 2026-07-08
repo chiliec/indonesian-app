@@ -1,3 +1,4 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -54,6 +55,15 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.sqldelight.jvm)
         }
+        val androidUnitTest by getting {
+            @OptIn(ExperimentalComposeLibrary::class)
+            dependencies {
+                implementation(compose.uiTest)
+                implementation(libs.sqldelight.jvm)
+                implementation(libs.robolectric)
+                implementation(libs.androidx.test.junit)
+            }
+        }
     }
 }
 
@@ -96,6 +106,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 
     dependencies {
