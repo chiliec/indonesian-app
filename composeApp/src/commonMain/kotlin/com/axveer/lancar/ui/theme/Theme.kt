@@ -4,6 +4,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -98,11 +100,16 @@ private fun lancarTypography(): Typography {
     )
 }
 
+val LocalAccentColor = staticCompositionLocalOf { LancarTerracotta }
+
 @Composable
-fun LancarTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = LancarColors,
-        typography = lancarTypography(),
-        content = content,
-    )
+fun LancarTheme(accent: Accent = Accent.TERRACOTTA, content: @Composable () -> Unit) {
+    val colors = LancarColors.copy(primary = accent.color)
+    CompositionLocalProvider(LocalAccentColor provides accent.color) {
+        MaterialTheme(
+            colorScheme = colors,
+            typography = lancarTypography(),
+            content = content,
+        )
+    }
 }
