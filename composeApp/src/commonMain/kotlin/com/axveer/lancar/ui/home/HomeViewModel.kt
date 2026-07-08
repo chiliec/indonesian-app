@@ -1,8 +1,10 @@
 package com.axveer.lancar.ui.home
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.axveer.lancar.ui.AppModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,14 +13,16 @@ import kotlinx.coroutines.launch
 data class ModuleRow(val id: String, val title: String, val cardCount: Int, val masteryPct: Int)
 data class HomeUiState(val modules: List<ModuleRow> = emptyList(), val loading: Boolean = true)
 
-class HomeViewModel(private val module: AppModule) : ViewModel() {
+class HomeViewModel(private val module: AppModule) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     private val _state = MutableStateFlow(HomeUiState())
     val state: StateFlow<HomeUiState> = _state.asStateFlow()
 
     init { refresh() }
 
     fun refresh() {
-        viewModelScope.launch {
+        scope.launch {
             val metas = module.content.modules()
             val rows = metas.map { m ->
                 val ids = module.content.cards(m.id).map { it.id }
@@ -27,4 +31,6 @@ class HomeViewModel(private val module: AppModule) : ViewModel() {
             _state.value = HomeUiState(rows, loading = false)
         }
     }
+
+    fun dispose() { scope.cancel() }
 }

@@ -1,15 +1,18 @@
 package com.axveer.lancar.ui.drill
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.axveer.lancar.domain.Card
 import com.axveer.lancar.domain.MasteryCalculator
 import com.axveer.lancar.domain.Question
 import com.axveer.lancar.ui.AppModule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val SESSION_SIZE = 12
 
@@ -27,7 +30,9 @@ data class DrillUiState(
 class DrillViewModel(
     private val module: AppModule,
     private val moduleId: String,
-) : ViewModel() {
+) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     private val _state = MutableStateFlow(DrillUiState())
     val state: StateFlow<DrillUiState> = _state.asStateFlow()
 
@@ -35,9 +40,11 @@ class DrillViewModel(
     private lateinit var queue: List<Card>
 
     init {
-        viewModelScope.launch {
+        scope.launch {
             pool = module.content.cards(moduleId)
-            val prog = module.progress.forCards(pool.map { it.id })
+            val prog = withContext(Dispatchers.Default) {
+                module.progress.forCards(pool.map { it.id })
+            }
             queue = pool.sortedBy { c ->
                 val p = prog[c.id]
                 when {
@@ -50,15 +57,16 @@ class DrillViewModel(
         }
     }
 
-    private fun emitQuestion(index: Int, correctCount: Int) {
+    private suspend fun emitQuestion(index: Int, correctCount: Int) {
         if (index >= queue.size) {
             _state.value = _state.value.copy(finished = true, correctCount = correctCount)
             return
         }
         val card = queue[index]
-        val mastered = MasteryCalculator.isMastered(
-            module.progress.forCards(listOf(card.id))[card.id]
-        )
+        val prog = withContext(Dispatchers.Default) {
+            module.progress.forCards(listOf(card.id))
+        }
+        val mastered = MasteryCalculator.isMastered(prog[card.id])
         val q = module.questionFactory.build(card, pool, mastered)
         _state.value = DrillUiState(
             index = index, total = queue.size, question = q,
@@ -86,11 +94,15 @@ class DrillViewModel(
 
     fun next() {
         val s = _state.value
-        emitQuestion(s.index + 1, s.correctCount)
+        scope.launch {
+            emitQuestion(s.index + 1, s.correctCount)
+        }
     }
 
     fun playAudio() {
         val name = _state.value.question?.audio ?: return
-        viewModelScope.launch { module.audio.play(name) }
+        scope.launch { module.audio.play(name) }
     }
+
+    fun dispose() { scope.cancel() }
 }

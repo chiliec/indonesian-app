@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
@@ -18,6 +19,7 @@ import com.axveer.lancar.ui.AppModule
 @Composable
 fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
     val vm = remember { HomeViewModel(appModule) }
+    DisposableEffect(vm) { onDispose { vm.dispose() } }
     val state by vm.state.collectAsState()
 
     Scaffold(topBar = { TopAppBar(title = { Text("Lancar") }) }) { pad ->

@@ -19,6 +19,7 @@ fun DrillScreen(
     onBack: () -> Unit,
 ) {
     val vm = remember(moduleId) { DrillViewModel(appModule, moduleId) }
+    DisposableEffect(vm) { onDispose { vm.dispose() } }
     val state by vm.state.collectAsState()
 
     LaunchedEffect(state.finished) {

@@ -15,7 +15,7 @@ class ProgressRepository(private val db: LancarDatabase) {
             cardId = cardId,
             correctInc = if (correct) 1L else 0L,
             wrongInc = if (correct) 0L else 1L,
-            now = 0L,
+            now = 0L,  // v1: last_seen unused; SRS scheduling is deferred
         )
     }
 

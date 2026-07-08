@@ -24,9 +24,12 @@ class QuestionFactory(private val rng: Random = Random.Default) {
         shuffle(distractors)
         val chosen = distractors.take(3)
 
-        val options = (chosen + correct).toMutableList()
-        shuffle(options)
-        val correctIndex = options.indexOf(correct)
+        // Insert correct answer at a random position and track the index directly,
+        // avoiding indexOf() which can return the wrong index when distractors share
+        // the same text as the correct answer.
+        val options = chosen.toMutableList()
+        val correctIndex = if (options.isEmpty()) 0 else rng.nextInt(options.size + 1)
+        options.add(correctIndex, correct)
 
         val prompt = when (mode) {
             QuestionMode.LISTEN -> "What does this mean?"
