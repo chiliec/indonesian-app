@@ -16,8 +16,9 @@ UI (Compose, immutable UiState, one ViewModel per screen, unidirectional data fl
 
 ## Build & test
 - Android: `./gradlew :composeApp:assembleDebug`
-- iOS: open `iosApp/iosApp.xcodeproj` in Xcode, or
-  `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
+- iOS (framework only): `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
+- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=057ACF07-A2C3-446D-A734-99AA3CB773AE' build`
+- iOS (run on simulator): `xcrun simctl install <sim-id> <app-path> && xcrun simctl launch <sim-id> com.axveer.lancar`
 - Tests: `./gradlew :composeApp:testDebugUnitTest`
 
 ## Environment requirements
@@ -32,12 +33,25 @@ by the Android Gradle plugin; no explicit export needed unless the SDK is in a n
 
 Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-app/`).
 
+## iOS-specific gotchas (learned during launch)
+
+- **iOS host uses UIKit lifecycle** (`AppDelegate` + `SceneDelegate`), not SwiftUI `@main`.
+  `SceneDelegate` sets `MainViewControllerKt.MainViewController()` as `window.rootViewController`.
+  Do not revert to SwiftUI — CMP's PlistSanityCheck requires `UISceneDelegateClassName` in plist.
+- **PlistSanityCheck is disabled** (`enforceStrictPlistSanityCheck = false` in `MainViewController`).
+  CMP 1.8.0 has an NSArray OOB crash in its own check code on arm64 simulator. Keep disabled until
+  a CMP upgrade resolves it.
+- **`Info.plist` must have** `CADisableMinimumFrameDurationOnPhone = true` (CMP requirement) and
+  `UIWindowSceneSessionRoleApplication` with `UISceneDelegateClassName` (UIKit scene lifecycle).
+- **JSON deserialization on K/N**: use `ListSerializer(Card.serializer())` explicitly — do NOT use
+  `decodeFromString<List<Card>>()`. The generic-inferred path crashes in the naming-strategy
+  annotation lookup on arm64 (null deref in `kotlin.Any#equals`). Also set `useAlternativeNames =
+  false` in the `Json` config.
+- **SQLite**: `libsqlite3.tbd` must be in the Xcode Frameworks build phase.
+- **Simulator ID**: iPhone 17 Pro = `057ACF07-A2C3-446D-A734-99AA3CB773AE`.
+
 ## Agent skills
-This repo is scaffolded for the kotlin-kmp-claude-agent-skills toolkit (to be installed under
-`.claude/` per its README at https://github.com/mmiani/kotlin-kmp-claude-agent-skills).
-Use the `kotlin-*` skills for architecture/state/UI/data/testing/build reviews and the
-`execute-ticket` pipeline for ticketed work. Match this project's module name `composeApp`
-and package `com.axveer.lancar`.
+Match this project's module name `composeApp` and package `com.axveer.lancar`.
 
 ## Out of scope (v1) — clean seams exist for later
 Scenarios / Claude role-play, STT/TTS, accounts/sync, monetization, SRS scheduling,

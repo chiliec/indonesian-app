@@ -17,7 +17,9 @@ Each layer may only import from the layer immediately below it. The `domain` lay
 
 ### UI (`ui/`)
 
-Compose Multiplatform screens with immutable `UiState` data classes and one `ViewModel` per screen. Navigation uses Compose Navigation with type-safe routes (`Home`, `Drill`, `Results`). The `App` composable owns the `NavHost`. `AppModule` is the hand-rolled DI container passed down from the platform entry points.
+Compose Multiplatform screens with immutable `UiState` data classes and one ViewModel per screen. Navigation uses Compose Navigation with type-safe routes (`Home`, `Drill`, `Results`). The `App` composable owns the `NavHost`. `AppModule` is the hand-rolled DI container passed down from the platform entry points.
+
+**ViewModels are not subclasses of `androidx.lifecycle.ViewModel`.** They own a `CoroutineScope(SupervisorJob() + Dispatchers.Main)` directly and expose a `dispose()` function. The host screen calls `DisposableEffect(vm) { onDispose { vm.dispose() } }` to cancel the scope on leave. This avoids the `lifecycle-viewmodel` dependency on K/N.
 
 Key files:
 - `ui/App.kt` — `NavHost` wiring, `MaterialTheme` wrapper
@@ -40,6 +42,16 @@ Pure Kotlin. No framework imports.
 - `ContentRepository.kt` — reads bundled JSON from `composeResources/files/content/` using `Res.readBytes`; caches in memory; exposes `modules()` and `cards(moduleId)`
 - `ProgressRepository.kt` — SQLDelight-backed; stores per-card answer history; exposes `recordAnswer`, `forCards`, `modulePercent`
 - `DriverFactory.kt` — `expect class` with `createDriver(): SqlDriver`; platform `actual` implementations in `androidMain` and `iosMain`
+
+### iOS entry point
+
+`iosApp/iosApp/` uses UIKit lifecycle — **not SwiftUI**:
+
+- `AppDelegate.swift` — `@UIApplicationMain`, empty body (UIKit needs this class)
+- `SceneDelegate.swift` — creates a `UIWindow`, sets `MainViewControllerKt.MainViewController()` as `rootViewController`
+- `iOSApp.swift` — comment-only; kept to satisfy Xcode project references
+
+`MainViewController.kt` (iosMain) wraps the Compose `App` in a `ComposeUIViewController`. The `LancarDatabase` and `AppModule` are created inside `remember {}` blocks so they survive recomposition.
 
 ### Platform (`platform/`)
 
