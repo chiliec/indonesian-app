@@ -1,0 +1,9 @@
+.superpowers/
+.gradle/
+build/
+*.iml
+.idea/
+local.properties
+xcuserdata/
+.DS_Store
+content-prep/node_modules/
