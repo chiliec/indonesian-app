@@ -37,13 +37,14 @@ fun MainScaffold(
     appModule: AppModule,
     onOpenModule: (String) -> Unit,
     onOpenDeck: (String) -> Unit,
+    onOpenReview: () -> Unit,
     onReplayOnboarding: () -> Unit,
 ) {
     var tab by remember { mutableStateOf(Tab.BERANDA) }
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (tab) {
-            Tab.BERANDA -> HomeScreen(appModule, onOpenModule)
+            Tab.BERANDA -> HomeScreen(appModule, onOpenModule, onOpenReview)
             Tab.KARTU -> KartuScreen(appModule, onOpenDeck)
             Tab.PROFIL -> ProfileScreen(appModule, onReplayOnboarding)
         }

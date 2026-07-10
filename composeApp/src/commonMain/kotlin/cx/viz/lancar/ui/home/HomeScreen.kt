@@ -24,12 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cx.viz.lancar.ui.AppModule
 import cx.viz.lancar.ui.theme.LancarBorder
+import cx.viz.lancar.ui.theme.LancarCream
 import cx.viz.lancar.ui.theme.LancarPanel
 import cx.viz.lancar.ui.theme.LancarSecondaryText
 import cx.viz.lancar.ui.theme.LocalAccentColor
 
 @Composable
-fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
+fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit, onOpenReview: () -> Unit) {
     val vm = remember { HomeViewModel(appModule) }
     DisposableEffect(vm) { onDispose { vm.dispose() } }
     val state by vm.state.collectAsState()
@@ -46,6 +47,7 @@ fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item { Header(state.name) }
+                item { ReviewBanner(dueCount = state.dueCount, onOpenReview = onOpenReview) }
                 items(state.modules, key = { it.id }) { row ->
                     ModuleCard(
                         title = row.title,
@@ -82,6 +84,42 @@ private fun Header(name: String) {
             style = MaterialTheme.typography.bodyLarge,
             color = LancarSecondaryText,
         )
+    }
+}
+
+@Composable
+private fun ReviewBanner(dueCount: Int, onOpenReview: () -> Unit) {
+    val hasDue = dueCount > 0
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (hasDue) LocalAccentColor.current else MaterialTheme.colorScheme.surface)
+            .border(1.5.dp, LancarBorder, RoundedCornerShape(20.dp))
+            .let { if (hasDue) it.clickable(onClick = onOpenReview) else it }
+            .padding(18.dp),
+    ) {
+        if (hasDue) {
+            Text(
+                "🔥 $dueCount kartu untuk diulang",
+                style = MaterialTheme.typography.titleMedium,
+                color = LancarCream,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "Tap to review — $dueCount cards due",
+                style = MaterialTheme.typography.bodySmall,
+                color = LancarCream.copy(alpha = 0.85f),
+            )
+        } else {
+            Text("✅ Semua sudah diulang", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "All caught up — nothing due today",
+                style = MaterialTheme.typography.bodySmall,
+                color = LancarSecondaryText,
+            )
+        }
     }
 }
 
