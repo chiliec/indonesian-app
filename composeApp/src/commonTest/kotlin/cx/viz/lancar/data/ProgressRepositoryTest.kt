@@ -100,4 +100,42 @@ class ProgressRepositoryTest {
         // mastery stays sticky despite the wrong review
         assertEquals(100, r.modulePercent(listOf("a")))
     }
+
+    @Test fun aggregatesSummariseProgress() {
+        val r = repo { 10L }
+        r.recordAnswer("a", correct = true)   // mastered, box 1
+        r.recordAnswer("a", correct = false)  // still mastered, +1 wrong
+        r.recordAnswer("b", correct = true)   // mastered, box 1
+        r.recordAnswer("c", correct = false)  // seen, not mastered, box 0
+
+        assertEquals(2, r.masteredCount())     // a, b
+        assertEquals(3, r.seenCount())         // a, b, c
+        val t = r.totals()
+        assertEquals(2, t.correct)             // a:1 + b:1
+        assertEquals(2, t.wrong)               // a:1 + c:1
+        assertEquals(2, r.reviewDeckCount())   // a, b in box > 0
+        assertEquals(mapOf(1 to 2), r.boxCounts())
+    }
+
+    @Test fun aggregatesEmptyOnFreshDb() {
+        val r = repo()
+        assertEquals(0, r.masteredCount())
+        assertEquals(0, r.seenCount())
+        assertEquals(0, r.totals().correct)
+        assertEquals(0, r.totals().wrong)
+        assertEquals(0, r.reviewDeckCount())
+        assertEquals(emptyMap(), r.boxCounts())
+    }
+
+    @Test fun countDueWithinCountsHorizon() {
+        var day = 10L
+        val r = repo { day }
+        r.recordAnswer("a", correct = true) // day 10 -> due day 11
+        day = 11L
+        r.recordReview("a", correct = true) // box 2 -> due day 11 + 3 = 14
+        r.recordAnswer("b", correct = true) // day 11 -> due day 12
+        assertEquals(0, r.countDue())         // nothing due on day 11
+        assertEquals(1, r.countDueWithin(1))  // due_day <= 12 -> b
+        assertEquals(2, r.countDueWithin(3))  // due_day <= 14 -> a, b
+    }
 }

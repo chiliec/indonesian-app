@@ -45,3 +45,24 @@ WHERE due_day IS NOT NULL AND due_day <= :today;
 
 deleteAll:
 DELETE FROM card_progress;
+
+countMastered:
+SELECT COUNT(*) FROM card_progress WHERE correct > 0;
+
+countSeen:
+SELECT COUNT(*) FROM card_progress WHERE seen > 0;
+
+sumTotals:
+SELECT CAST(COALESCE(SUM(correct), 0) AS INTEGER) AS correct,
+       CAST(COALESCE(SUM(wrong), 0) AS INTEGER)   AS wrong
+FROM card_progress;
+
+boxCounts:
+SELECT box, COUNT(*) AS n FROM card_progress WHERE box > 0 GROUP BY box;
+
+countReviewDeck:
+SELECT COUNT(*) FROM card_progress WHERE box > 0;
+
+countDueWithin:
+SELECT COUNT(*) FROM card_progress
+WHERE due_day IS NOT NULL AND due_day <= :cutoff;
