@@ -62,12 +62,15 @@ fun CardDeckScreen(appModule: AppModule, moduleId: String, onBack: () -> Unit) {
                 color = LancarSecondaryText,
                 modifier = Modifier.weight(1f),
             )
-            Text(
-                "🔀",
-                style = MaterialTheme.typography.titleMedium,
-                color = if (state.shuffled) LocalAccentColor.current else LancarSecondaryText,
-                modifier = Modifier.clickable { vm.toggleShuffle() }.padding(start = 14.dp),
-            )
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (state.shuffled) LocalAccentColor.current else LancarPanel)
+                    .clickable { vm.toggleShuffle() }
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+            ) {
+                Text("🔀", style = MaterialTheme.typography.titleMedium)
+            }
         }
 
         Spacer(Modifier.height(20.dp))
