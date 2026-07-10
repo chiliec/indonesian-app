@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import cx.viz.lancar.ui.drill.DrillScreen
+import cx.viz.lancar.ui.review.ReviewScreen
 import cx.viz.lancar.ui.kartu.CardDeckScreen
 import cx.viz.lancar.ui.main.MainScaffold
 import cx.viz.lancar.ui.onboarding.OnboardingScreen
@@ -33,6 +34,7 @@ fun App(appModule: AppModule) {
                     appModule = appModule,
                     onOpenModule = { moduleId -> nav.navigate(Drill(moduleId)) },
                     onOpenDeck = { moduleId -> nav.navigate(Cards(moduleId)) },
+                    onOpenReview = { nav.navigate(Review) },
                     onReplayOnboarding = {
                         nav.navigate(Onboarding) { popUpTo<Main> { inclusive = true } }
                     },
@@ -51,6 +53,13 @@ fun App(appModule: AppModule) {
             composable<Cards> { entry ->
                 val args = entry.toRoute<Cards>()
                 CardDeckScreen(appModule, args.moduleId, onBack = { nav.popBackStack() })
+            }
+            composable<Review> {
+                ReviewScreen(
+                    appModule,
+                    onFinish = { nav.popBackStack(Main, inclusive = false) },
+                    onBack = { nav.popBackStack() },
+                )
             }
             composable<Results> { entry ->
                 val r = entry.toRoute<Results>()
