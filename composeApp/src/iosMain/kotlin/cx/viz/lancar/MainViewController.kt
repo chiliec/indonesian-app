@@ -11,7 +11,7 @@ import cx.viz.lancar.platform.IosAudioPlayer
 import cx.viz.lancar.ui.App
 import cx.viz.lancar.ui.AppModule
 
-fun MainViewController() = ComposeUIViewController(configure = { enforceStrictPlistSanityCheck = false }) {
+fun MainViewController() = ComposeUIViewController {
     val db = remember { LancarDatabase(DriverFactory().createDriver()) }
     val appModule = remember {
         AppModule(

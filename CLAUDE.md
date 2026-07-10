@@ -17,7 +17,7 @@ UI (Compose, immutable UiState, one ViewModel per screen, unidirectional data fl
 ## Build & test
 - Android: `./gradlew :composeApp:assembleDebug`
 - iOS (framework only): `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
-- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=057ACF07-A2C3-446D-A734-99AA3CB773AE' build`
+- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=7E679B15-C333-4407-B6B8-7A763C0B3783' build`
 - iOS (run on simulator): `xcrun simctl install <sim-id> <app-path> && xcrun simctl launch <sim-id> cx.viz.lancar`
 - Tests: `./gradlew :composeApp:testDebugUnitTest`
 
@@ -28,8 +28,9 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 ```
 Do NOT use `$(/usr/libexec/java_home -v 21)` — it does not locate this Homebrew install.
 
-Android SDK: `~/Library/Android/sdk` (standard Mac install). ANDROID_HOME is auto-detected
-by the Android Gradle plugin; no explicit export needed unless the SDK is in a non-standard path.
+Android SDK: `/opt/homebrew/share/android-commandlinetools` (Homebrew install; set in
+`local.properties` as `sdk.dir`). ANDROID_HOME is auto-detected from `local.properties`
+by the Android Gradle plugin; no explicit export needed.
 
 Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-app/`).
 
@@ -38,9 +39,9 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
 - **iOS host uses UIKit lifecycle** (`AppDelegate` + `SceneDelegate`), not SwiftUI `@main`.
   `SceneDelegate` sets `MainViewControllerKt.MainViewController()` as `window.rootViewController`.
   Do not revert to SwiftUI — CMP's PlistSanityCheck requires `UISceneDelegateClassName` in plist.
-- **PlistSanityCheck is disabled** (`enforceStrictPlistSanityCheck = false` in `MainViewController`).
-  CMP 1.8.0 has an NSArray OOB crash in its own check code on arm64 simulator. Keep disabled until
-  a CMP upgrade resolves it.
+- **PlistSanityCheck is enabled** (default). The NSArray OOB crash in CMP's own check code on
+  arm64 simulator was a **CMP 1.8.0** bug; **fixed by bumping to CMP 1.8.2**. `MainViewController`
+  no longer passes `enforceStrictPlistSanityCheck = false`. Verified: app launches on the sim.
 - **`Info.plist` must have** `CADisableMinimumFrameDurationOnPhone = true` (CMP requirement) and
   `UIWindowSceneSessionRoleApplication` with `UISceneDelegateClassName` (UIKit scene lifecycle).
 - **JSON deserialization on K/N**: use `ListSerializer(Card.serializer())` explicitly — do NOT use
@@ -48,7 +49,7 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
   annotation lookup on arm64 (null deref in `kotlin.Any#equals`). Also set `useAlternativeNames =
   false` in the `Json` config.
 - **SQLite**: `libsqlite3.tbd` must be in the Xcode Frameworks build phase.
-- **Simulator ID**: iPhone 17 Pro = `057ACF07-A2C3-446D-A734-99AA3CB773AE`.
+- **Simulator ID**: iPhone 17 Pro (iOS 26.4) = `7E679B15-C333-4407-B6B8-7A763C0B3783`.
 
 ## Agent skills
 Match this project's module name `composeApp` and package `cx.viz.lancar`.
