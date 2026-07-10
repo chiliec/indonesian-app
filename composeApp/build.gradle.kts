@@ -27,6 +27,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            binaryOption("bundleId", "cx.viz.lancar")
         }
     }
 
@@ -70,13 +71,13 @@ kotlin {
 sqldelight {
     databases {
         register("LancarDatabase") {
-            packageName.set("com.axveer.lancar.db")
+            packageName.set("cx.viz.lancar.db")
         }
     }
 }
 
 android {
-    namespace = "com.axveer.lancar"
+    namespace = "cx.viz.lancar"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")

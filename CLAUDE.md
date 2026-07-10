@@ -51,7 +51,7 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
 - **Simulator ID**: iPhone 17 Pro = `057ACF07-A2C3-446D-A734-99AA3CB773AE`.
 
 ## Agent skills
-Match this project's module name `composeApp` and package `com.axveer.lancar`.
+Match this project's module name `composeApp` and package `cx.viz.lancar`.
 
 ## Shipped features
 - **Onboarding** (2-step: welcome + optional name) — gates first cold start
