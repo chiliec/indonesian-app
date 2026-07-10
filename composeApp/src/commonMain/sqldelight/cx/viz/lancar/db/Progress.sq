@@ -3,15 +3,20 @@ CREATE TABLE card_progress (
     seen      INTEGER NOT NULL DEFAULT 0,
     correct   INTEGER NOT NULL DEFAULT 0,
     wrong     INTEGER NOT NULL DEFAULT 0,
-    last_seen INTEGER
+    last_seen INTEGER,
+    box       INTEGER NOT NULL DEFAULT 0,
+    due_day   INTEGER
 );
 
 selectByIds:
 SELECT card_id, seen, correct, wrong FROM card_progress WHERE card_id IN ?;
 
+selectSchedule:
+SELECT box, due_day FROM card_progress WHERE card_id = :cardId;
+
 insertOrIgnore:
-INSERT OR IGNORE INTO card_progress(card_id, seen, correct, wrong, last_seen)
-VALUES (:cardId, 0, 0, 0, NULL);
+INSERT OR IGNORE INTO card_progress(card_id, seen, correct, wrong, last_seen, box, due_day)
+VALUES (:cardId, 0, 0, 0, NULL, 0, NULL);
 
 updateAnswer:
 UPDATE card_progress SET
@@ -20,6 +25,23 @@ UPDATE card_progress SET
     wrong = wrong + :wrongInc,
     last_seen = :now
 WHERE card_id = :cardId;
+
+updateSchedule:
+UPDATE card_progress SET
+    box = :box,
+    due_day = :dueDay,
+    last_seen = :lastSeen
+WHERE card_id = :cardId;
+
+selectDue:
+SELECT card_id FROM card_progress
+WHERE due_day IS NOT NULL AND due_day <= :today
+ORDER BY due_day ASC, box ASC
+LIMIT :limit;
+
+countDue:
+SELECT COUNT(*) FROM card_progress
+WHERE due_day IS NOT NULL AND due_day <= :today;
 
 deleteAll:
 DELETE FROM card_progress;

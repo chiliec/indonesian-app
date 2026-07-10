@@ -1,4 +1,4 @@
-package cx.viz.lancar.ui.drill
+package cx.viz.lancar.ui.review
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -7,20 +7,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import cx.viz.lancar.ui.AppModule
+import cx.viz.lancar.ui.drill.QuizView
 
 @Composable
-fun DrillScreen(
+fun ReviewScreen(
     appModule: AppModule,
-    moduleId: String,
-    onFinish: (correct: Int, total: Int, newlyMastered: Int) -> Unit,
+    onFinish: () -> Unit,
     onBack: () -> Unit,
 ) {
-    val vm = remember(moduleId) { DrillViewModel(appModule, moduleId) }
+    val vm = remember { ReviewViewModel(appModule) }
     DisposableEffect(vm) { onDispose { vm.dispose() } }
     val state by vm.state.collectAsState()
 
     LaunchedEffect(state.finished) {
-        if (state.finished) onFinish(state.correctCount, state.total, state.newlyMastered)
+        if (state.finished) onFinish()
     }
 
     QuizView(

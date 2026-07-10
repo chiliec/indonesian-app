@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable object Onboarding
 @Serializable object Main
+@Serializable object Review
 @Serializable data class Drill(val moduleId: String)
 @Serializable data class Cards(val moduleId: String)
 @Serializable data class Results(

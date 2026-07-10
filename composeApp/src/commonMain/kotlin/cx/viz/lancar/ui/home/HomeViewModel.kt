@@ -9,16 +9,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 data class ModuleRow(val id: String, val title: String, val cardCount: Int, val masteryPct: Int)
 data class HomeUiState(
     val modules: List<ModuleRow> = emptyList(),
     val loading: Boolean = true,
     val name: String = "",
+    val dueCount: Int = 0,
 )
 
-class HomeViewModel(private val module: AppModule) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+class HomeViewModel(
+    private val module: AppModule,
+    dispatcher: CoroutineContext = Dispatchers.Main,
+) {
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
     private val _state = MutableStateFlow(HomeUiState())
     val state: StateFlow<HomeUiState> = _state.asStateFlow()
@@ -32,7 +37,12 @@ class HomeViewModel(private val module: AppModule) {
                 val ids = module.content.cards(m.id).map { it.id }
                 ModuleRow(m.id, m.title, m.cardCount, module.progress.modulePercent(ids))
             }
-            _state.value = HomeUiState(rows, loading = false, name = module.settings.displayName().orEmpty())
+            _state.value = HomeUiState(
+                modules = rows,
+                loading = false,
+                name = module.settings.displayName().orEmpty(),
+                dueCount = module.progress.countDue(),
+            )
         }
     }
 
