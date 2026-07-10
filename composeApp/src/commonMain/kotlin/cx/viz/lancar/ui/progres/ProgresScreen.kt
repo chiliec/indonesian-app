@@ -148,7 +148,7 @@ private fun ReviewDeckCard(s: ProgresUiState) {
             }
             Spacer(Modifier.height(4.dp))
             Text(
-                "🔥 ${s.dueToday} jatuh tempo hari ini · ${s.dueThisWeek} minggu ini",
+                "🔥 ${s.dueToday} jatuh tempo hari ini · ${s.dueThisWeek} dalam 7 hari",
                 style = MaterialTheme.typography.bodySmall,
                 color = LancarSecondaryText,
             )
