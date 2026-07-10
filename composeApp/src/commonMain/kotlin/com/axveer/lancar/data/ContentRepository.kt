@@ -20,7 +20,7 @@ open class ContentRepository {
     private val cardCache = mutableMapOf<String, List<Card>>()
     private var metaCache: List<ModuleMeta>? = null
 
-    suspend fun modules(): List<ModuleMeta> {
+    open suspend fun modules(): List<ModuleMeta> {
         cacheMutex.withLock { metaCache }?.let { return it }
         val text = Res.readBytes("files/content/manifest.json").decodeToString()
         val manifest = json.decodeFromString<Manifest>(text)
