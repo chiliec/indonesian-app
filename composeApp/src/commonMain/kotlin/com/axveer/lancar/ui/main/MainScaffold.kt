@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.axveer.lancar.ui.AppModule
 import com.axveer.lancar.ui.home.HomeScreen
+import com.axveer.lancar.ui.kartu.KartuScreen
 import com.axveer.lancar.ui.profile.ProfileScreen
 import com.axveer.lancar.ui.theme.LancarBorder
 import com.axveer.lancar.ui.theme.LancarInk
@@ -27,6 +28,7 @@ import com.axveer.lancar.ui.theme.LancarSurface
 
 private enum class Tab(val icon: String, val label: String) {
     BERANDA("🏠", "Beranda"),
+    KARTU("🃏", "Kartu"),
     PROFIL("👤", "Profil"),
 }
 
@@ -34,6 +36,7 @@ private enum class Tab(val icon: String, val label: String) {
 fun MainScaffold(
     appModule: AppModule,
     onOpenModule: (String) -> Unit,
+    onOpenDeck: (String) -> Unit,
     onReplayOnboarding: () -> Unit,
 ) {
     var tab by remember { mutableStateOf(Tab.BERANDA) }
@@ -41,6 +44,7 @@ fun MainScaffold(
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (tab) {
             Tab.BERANDA -> HomeScreen(appModule, onOpenModule)
+            Tab.KARTU -> KartuScreen(appModule, onOpenDeck)
             Tab.PROFIL -> ProfileScreen(appModule, onReplayOnboarding)
         }
 

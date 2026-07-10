@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.axveer.lancar.ui.drill.DrillScreen
+import com.axveer.lancar.ui.kartu.CardDeckScreen
 import com.axveer.lancar.ui.main.MainScaffold
 import com.axveer.lancar.ui.onboarding.OnboardingScreen
 import com.axveer.lancar.ui.results.ResultsScreen
@@ -31,6 +32,7 @@ fun App(appModule: AppModule) {
                 MainScaffold(
                     appModule = appModule,
                     onOpenModule = { moduleId -> nav.navigate(Drill(moduleId)) },
+                    onOpenDeck = { moduleId -> nav.navigate(Cards(moduleId)) },
                     onReplayOnboarding = {
                         nav.navigate(Onboarding) { popUpTo<Main> { inclusive = true } }
                     },
@@ -45,6 +47,10 @@ fun App(appModule: AppModule) {
                         }
                     },
                     onBack = { nav.popBackStack() })
+            }
+            composable<Cards> { entry ->
+                val args = entry.toRoute<Cards>()
+                CardDeckScreen(appModule, args.moduleId, onBack = { nav.popBackStack() })
             }
             composable<Results> { entry ->
                 val r = entry.toRoute<Results>()
