@@ -17,7 +17,7 @@ UI (Compose, immutable UiState, one ViewModel per screen, unidirectional data fl
 ## Build & test
 - Android: `./gradlew :composeApp:assembleDebug`
 - iOS (framework only): `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
-- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=7E679B15-C333-4407-B6B8-7A763C0B3783' build`
+- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=32623728-2A40-4964-912D-252369F2692D' build`
 - iOS (run on simulator): `xcrun simctl install <sim-id> <app-path> && xcrun simctl launch <sim-id> cx.viz.lancar`
 - Tests: `./gradlew :composeApp:testDebugUnitTest`
 
@@ -49,7 +49,10 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
   annotation lookup on arm64 (null deref in `kotlin.Any#equals`). Also set `useAlternativeNames =
   false` in the `Json` config.
 - **SQLite**: `libsqlite3.tbd` must be in the Xcode Frameworks build phase.
-- **Simulator ID**: iPhone 17 Pro (iOS 26.4) = `7E679B15-C333-4407-B6B8-7A763C0B3783`.
+- **Simulator ID**: iPhone 16 Pro (iOS 26.4) = `32623728-2A40-4964-912D-252369F2692D`.
+  (Earlier IDs `7E679B15…`/`057ACF07…` were wiped in a disk cleanup — sims aren't stable across resets.)
+- **`open -a Simulator` before `simctl launch`/`io screenshot`** — a headless (never-foregrounded)
+  sim errors "Timeout waiting for screen surfaces" and `launch` hangs.
 
 ## Agent skills
 Match this project's module name `composeApp` and package `cx.viz.lancar`.
