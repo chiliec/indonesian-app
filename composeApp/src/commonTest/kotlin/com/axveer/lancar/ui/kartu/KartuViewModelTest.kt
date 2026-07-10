@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-private class FakeContent : ContentRepository() {
+private class FakeKartuContent : ContentRepository() {
     override suspend fun modules(): List<ModuleMeta> = listOf(
         ModuleMeta(MIXED_ID, "🎲 Mixed (all words)", 30),
         ModuleMeta("module-1", "Module 1", 10),
@@ -34,7 +34,7 @@ class KartuViewModelTest {
     }
 
     @Test fun excludesMixedAndMapsRows() {
-        val vm = KartuViewModel(module(FakeContent()), dispatcher = Dispatchers.Unconfined)
+        val vm = KartuViewModel(module(FakeKartuContent()), dispatcher = Dispatchers.Unconfined)
         val s = vm.state.value
         assertFalse(s.loading)
         assertEquals(listOf("module-1", "module-2"), s.modules.map { it.id })
