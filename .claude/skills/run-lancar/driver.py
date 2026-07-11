@@ -32,7 +32,7 @@ import subprocess
 import sys
 
 # --- config -----------------------------------------------------------------
-SIM_DEFAULT = "057ACF07-A2C3-446D-A734-99AA3CB773AE"  # iPhone 17 Pro (see CLAUDE.md)
+SIM_DEFAULT = "32623728-2A40-4964-912D-252369F2692D"  # iPhone 16 Pro, iOS 26.4 (see CLAUDE.md)
 BUNDLE = "cx.viz.lancar"
 SCHEME = "iosApp"
 PROJECT = "iosApp/iosApp.xcodeproj"
@@ -43,7 +43,7 @@ os.environ["PATH"] = IDB_BIN_DIR + ":" + os.environ.get("PATH", "")
 
 
 def sim_udid():
-    """Prefer an already-booted sim; fall back to the known iPhone 17 Pro."""
+    """Prefer an already-booted sim; fall back to the known iPhone 16 Pro."""
     out = run(["xcrun", "simctl", "list", "devices", "booted"], capture=True)
     for line in out.splitlines():
         if "Booted" in line and "(" in line:
