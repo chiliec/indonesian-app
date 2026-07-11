@@ -29,5 +29,6 @@ fun DrillScreen(
         onNext = { vm.next() },
         onPlayAudio = { vm.playAudio() },
         onBack = onBack,
+        onSpeak = { vm.onSpeak() },
     )
 }

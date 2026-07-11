@@ -2,6 +2,7 @@ package cx.viz.lancar.ui.drill
 
 import cx.viz.lancar.domain.Card
 import cx.viz.lancar.domain.MasteryCalculator
+import cx.viz.lancar.domain.PronunciationMatcher
 import cx.viz.lancar.domain.Question
 import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +26,9 @@ data class DrillUiState(
     val correctCount: Int = 0,
     val finished: Boolean = false,
     val newlyMastered: Int = 0,
+    val sttAvailable: Boolean = false,
+    val listening: Boolean = false,
+    val speechHint: String? = null,
 )
 
 class DrillViewModel(
@@ -38,6 +42,7 @@ class DrillViewModel(
 
     private lateinit var pool: List<Card>
     private lateinit var queue: List<Card>
+    private var sttAvailable = false
 
     init {
         scope.launch {
@@ -53,6 +58,7 @@ class DrillViewModel(
                     else -> 2                             // mastered last
                 }
             }.take(SESSION_SIZE)
+            sttAvailable = module.stt.isAvailable()
             emitQuestion(0, 0)
         }
     }
@@ -71,6 +77,7 @@ class DrillViewModel(
         _state.value = DrillUiState(
             index = index, total = queue.size, question = q,
             correctCount = correctCount, newlyMastered = _state.value.newlyMastered,
+            sttAvailable = sttAvailable,
         )
     }
 
@@ -90,6 +97,26 @@ class DrillViewModel(
             correctCount = s.correctCount + if (correct) 1 else 0,
             newlyMastered = s.newlyMastered + if (nowMastered) 1 else 0,
         )
+    }
+
+    fun onSpeak() {
+        val s = _state.value
+        val q = s.question ?: return
+        if (s.answered || s.listening) return
+        scope.launch {
+            _state.value = _state.value.copy(listening = true, speechHint = null)
+            val transcript = module.stt.recognize()
+            val ok = transcript != null && PronunciationMatcher.matches(transcript, q.card.indonesian)
+            if (ok) {
+                _state.value = _state.value.copy(listening = false)
+                answer(q.correctIndex)
+            } else {
+                _state.value = _state.value.copy(
+                    listening = false,
+                    speechHint = "Belum tepat — coba lagi atau ketuk",
+                )
+            }
+        }
     }
 
     fun next() {
