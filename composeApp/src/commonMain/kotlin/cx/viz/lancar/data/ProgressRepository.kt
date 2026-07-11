@@ -9,6 +9,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 
+data class Totals(val correct: Int, val wrong: Int)
+
 class ProgressRepository(
     private val db: LancarDatabase,
     private val today: () -> Long = {
@@ -66,6 +68,20 @@ class ProgressRepository(
 
     fun modulePercent(cardIds: List<String>): Int =
         MasteryCalculator.modulePercent(cardIds, forCards(cardIds))
+
+    fun masteredCount(): Int = q.countMastered().executeAsOne().toInt()
+
+    fun seenCount(): Int = q.countSeen().executeAsOne().toInt()
+
+    fun totals(): Totals = q.sumTotals().executeAsOne().let { Totals(it.correct.toInt(), it.wrong.toInt()) }
+
+    fun boxCounts(): Map<Int, Int> =
+        q.boxCounts().executeAsList().associate { it.box.toInt() to it.n.toInt() }
+
+    fun reviewDeckCount(): Int = q.countReviewDeck().executeAsOne().toInt()
+
+    fun countDueWithin(days: Int): Int =
+        q.countDueWithin(cutoff = today() + days).executeAsOne().toInt()
 
     fun reset() = q.deleteAll()
 

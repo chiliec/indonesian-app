@@ -21,6 +21,7 @@ import cx.viz.lancar.ui.AppModule
 import cx.viz.lancar.ui.home.HomeScreen
 import cx.viz.lancar.ui.kartu.KartuScreen
 import cx.viz.lancar.ui.profile.ProfileScreen
+import cx.viz.lancar.ui.progres.ProgresScreen
 import cx.viz.lancar.ui.theme.LancarBorder
 import cx.viz.lancar.ui.theme.LancarInk
 import cx.viz.lancar.ui.theme.LancarPanel
@@ -29,6 +30,7 @@ import cx.viz.lancar.ui.theme.LancarSurface
 private enum class Tab(val icon: String, val label: String) {
     BERANDA("🏠", "Beranda"),
     KARTU("🃏", "Kartu"),
+    PROGRES("📊", "Progres"),
     PROFIL("👤", "Profil"),
 }
 
@@ -46,6 +48,7 @@ fun MainScaffold(
         when (tab) {
             Tab.BERANDA -> HomeScreen(appModule, onOpenModule, onOpenReview)
             Tab.KARTU -> KartuScreen(appModule, onOpenDeck)
+            Tab.PROGRES -> ProgresScreen(appModule)
             Tab.PROFIL -> ProfileScreen(appModule, onReplayOnboarding)
         }
 
