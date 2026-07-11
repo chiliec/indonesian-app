@@ -56,5 +56,9 @@ class CardDeckViewModel(
         scope.launch { module.audio.play(fileName) }
     }
 
+    fun speak(text: String) {
+        scope.launch { module.tts.speak(text) }
+    }
+
     fun dispose() { scope.cancel() }
 }

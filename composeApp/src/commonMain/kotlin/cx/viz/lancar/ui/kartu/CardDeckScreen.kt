@@ -80,13 +80,13 @@ fun CardDeckScreen(appModule: AppModule, moduleId: String, onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth().weight(1f),
             pageSpacing = 16.dp,
         ) { page ->
-            FlipCard(card = state.cards[page], onPlay = { vm.playAudio(it) })
+            FlipCard(card = state.cards[page], onPlay = { vm.playAudio(it) }, onSpeak = { vm.speak(it) })
         }
     }
 }
 
 @Composable
-private fun FlipCard(card: Card, onPlay: (String) -> Unit) {
+private fun FlipCard(card: Card, onPlay: (String) -> Unit, onSpeak: (String) -> Unit) {
     // Reset to front whenever the card identity changes (page swipe).
     var flipped by remember(card.id) { mutableStateOf(false) }
 
@@ -101,7 +101,7 @@ private fun FlipCard(card: Card, onPlay: (String) -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Crossfade(targetState = flipped, label = "flip") { showBack ->
-            if (!showBack) CardFront(card, onPlay) else CardBack(card)
+            if (!showBack) CardFront(card, onPlay) else CardBack(card, onSpeak)
         }
     }
 }
@@ -139,7 +139,7 @@ private fun CardFront(card: Card, onPlay: (String) -> Unit) {
 }
 
 @Composable
-private fun CardBack(card: Card) {
+private fun CardBack(card: Card, onSpeak: (String) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             card.english,
@@ -165,7 +165,21 @@ private fun CardBack(card: Card) {
                     .padding(16.dp),
             ) {
                 Column {
-                    Text(s.text, style = MaterialTheme.typography.titleSmall, color = LancarInk)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            s.text,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = LancarInk,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            "🔉",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .clickable { onSpeak(s.text) }
+                                .padding(start = 8.dp),
+                        )
+                    }
                     Spacer(Modifier.height(4.dp))
                     Text(s.en, style = MaterialTheme.typography.bodySmall, color = LancarSecondaryText)
                 }
