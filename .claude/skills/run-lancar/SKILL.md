@@ -30,7 +30,7 @@ pip3 install fb-idb
 ```
 
 A booted simulator is required. The driver auto-detects the booted device and
-falls back to iPhone 17 Pro (`057ACF07-A2C3-446D-A734-99AA3CB773AE`).
+falls back to iPhone 16 Pro (`32623728-2A40-4964-912D-252369F2692D`).
 
 ## Run (agent path) — use the driver
 
