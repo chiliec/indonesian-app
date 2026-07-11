@@ -16,6 +16,10 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lancar uses the microphone so you can practice pronouncing Indonesian words.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Lancar checks your spoken Indonesian on your device to help you practice pronunciation.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

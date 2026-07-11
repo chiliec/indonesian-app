@@ -9,6 +9,8 @@ import cx.viz.lancar.data.ProgressRepository
 import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.db.LancarDatabase
 import cx.viz.lancar.platform.AndroidAudioPlayer
+import cx.viz.lancar.platform.AndroidSpeechRecognizer
+import cx.viz.lancar.platform.AndroidSpeechSynthesizer
 import cx.viz.lancar.ui.App
 import cx.viz.lancar.ui.AppModule
 
@@ -21,6 +23,8 @@ class MainActivity : ComponentActivity() {
             progress = ProgressRepository(db),
             settings = SettingsRepository(db),
             audio = AndroidAudioPlayer(applicationContext),
+            tts = AndroidSpeechSynthesizer(applicationContext),
+            stt = AndroidSpeechRecognizer(applicationContext),
         )
         setContent { App(appModule) }
     }

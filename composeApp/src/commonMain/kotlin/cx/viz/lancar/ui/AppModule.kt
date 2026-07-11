@@ -5,6 +5,10 @@ import cx.viz.lancar.data.ProgressRepository
 import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.domain.QuestionFactory
 import cx.viz.lancar.platform.AudioPlayer
+import cx.viz.lancar.platform.NoopSpeechRecognizer
+import cx.viz.lancar.platform.NoopSpeechSynthesizer
+import cx.viz.lancar.platform.SpeechRecognizer
+import cx.viz.lancar.platform.SpeechSynthesizer
 import cx.viz.lancar.ui.theme.Accent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +19,8 @@ class AppModule(
     val progress: ProgressRepository,
     val settings: SettingsRepository,
     val audio: AudioPlayer,
+    val tts: SpeechSynthesizer = NoopSpeechSynthesizer(),
+    val stt: SpeechRecognizer = NoopSpeechRecognizer(),
 ) {
     val questionFactory = QuestionFactory()
 

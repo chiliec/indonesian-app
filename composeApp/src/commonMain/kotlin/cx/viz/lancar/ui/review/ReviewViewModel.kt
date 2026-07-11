@@ -2,6 +2,7 @@ package cx.viz.lancar.ui.review
 
 import cx.viz.lancar.data.MIXED_ID
 import cx.viz.lancar.domain.Card
+import cx.viz.lancar.domain.PronunciationMatcher
 import cx.viz.lancar.ui.AppModule
 import cx.viz.lancar.ui.drill.DrillUiState
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,7 @@ class ReviewViewModel(
 
     private var pool: List<Card> = emptyList()
     private var queue: List<Card> = emptyList()
+    private var sttAvailable = false
 
     init {
         scope.launch {
@@ -34,6 +36,7 @@ class ReviewViewModel(
             val byId = pool.associateBy { it.id }
             val dueIds = module.progress.dueCardIds(REVIEW_SIZE)
             queue = dueIds.mapNotNull { byId[it] }
+            sttAvailable = module.stt.isAvailable()
             emitQuestion(0, 0)
         }
     }
@@ -48,6 +51,7 @@ class ReviewViewModel(
         val q = module.questionFactory.build(card, pool, isMastered = true)
         _state.value = DrillUiState(
             index = index, total = queue.size, question = q, correctCount = correctCount,
+            sttAvailable = sttAvailable,
         )
     }
 
@@ -62,6 +66,26 @@ class ReviewViewModel(
             answered = true,
             correctCount = s.correctCount + if (correct) 1 else 0,
         )
+    }
+
+    fun onSpeak() {
+        val s = _state.value
+        val q = s.question ?: return
+        if (s.answered || s.listening) return
+        scope.launch {
+            _state.value = _state.value.copy(listening = true, speechHint = null)
+            val transcript = module.stt.recognize()
+            val ok = transcript != null && PronunciationMatcher.matches(transcript, q.card.indonesian)
+            if (ok) {
+                _state.value = _state.value.copy(listening = false)
+                answer(q.correctIndex)
+            } else {
+                _state.value = _state.value.copy(
+                    listening = false,
+                    speechHint = "Belum tepat — coba lagi atau ketuk",
+                )
+            }
+        }
     }
 
     fun next() {

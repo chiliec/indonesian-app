@@ -28,6 +28,7 @@ fun QuizView(
     onNext: () -> Unit,
     onPlayAudio: () -> Unit,
     onBack: () -> Unit,
+    onSpeak: () -> Unit = {},
 ) {
     val q = state.question ?: run {
         Box(
@@ -80,6 +81,14 @@ fun QuizView(
             AudioButton(onPlay = onPlayAudio)
         } else {
             Text(q.promptText, style = MaterialTheme.typography.headlineMedium)
+            if (q.mode == QuestionMode.PRODUCE && state.sttAvailable && !state.answered) {
+                Spacer(Modifier.height(16.dp))
+                MicButton(listening = state.listening, onSpeak = onSpeak)
+                state.speechHint?.let {
+                    Spacer(Modifier.height(8.dp))
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = LancarSecondaryText)
+                }
+            }
         }
 
         Spacer(Modifier.height(26.dp))
@@ -124,6 +133,24 @@ private fun AudioButton(onPlay: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text("🔉  Putar audio", style = MaterialTheme.typography.labelLarge, color = LancarCream)
+    }
+}
+
+@Composable
+private fun MicButton(listening: Boolean, onSpeak: () -> Unit) {
+    Row(
+        Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(LocalAccentColor.current)
+            .clickable(enabled = !listening, onClick = onSpeak)
+            .padding(horizontal = 22.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            if (listening) "🎤  Mendengarkan…" else "🎤  Ucapkan dalam bahasa Indonesia",
+            style = MaterialTheme.typography.labelLarge,
+            color = LancarCream,
+        )
     }
 }
 
