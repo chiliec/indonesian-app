@@ -23,7 +23,8 @@ class ReviewViewModel(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
-    private val _state = MutableStateFlow(DrillUiState())
+    private val showListenText = module.settings.showListenText()
+    private val _state = MutableStateFlow(DrillUiState(revealText = showListenText))
     val state: StateFlow<DrillUiState> = _state.asStateFlow()
 
     private var pool: List<Card> = emptyList()
@@ -51,7 +52,7 @@ class ReviewViewModel(
         val q = module.questionFactory.build(card, pool, isMastered = true)
         _state.value = DrillUiState(
             index = index, total = queue.size, question = q, correctCount = correctCount,
-            sttAvailable = sttAvailable,
+            sttAvailable = sttAvailable, revealText = showListenText,
         )
     }
 
@@ -96,6 +97,10 @@ class ReviewViewModel(
     fun playAudio() {
         val name = _state.value.question?.audio ?: return
         scope.launch { module.audio.play(name) }
+    }
+
+    fun revealWord() {
+        _state.value = _state.value.copy(revealText = true)
     }
 
     fun dispose() { scope.cancel() }

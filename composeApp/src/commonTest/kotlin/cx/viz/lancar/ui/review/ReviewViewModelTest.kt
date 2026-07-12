@@ -13,6 +13,7 @@ import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 private class FakeReviewContent : ContentRepository() {
@@ -66,5 +67,26 @@ class ReviewViewModelTest {
         val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
         assertTrue(vm.state.value.finished)
         assertEquals(0, vm.state.value.total)
+    }
+
+    @Test fun seedsRevealTextFromSettings() {
+        var day = 10L
+        val module = setup { day }
+        module.progress.recordAnswer("a", correct = true)
+        day = 100L
+        module.settings.setShowListenText(true)
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        assertTrue(vm.state.value.revealText)
+    }
+
+    @Test fun revealWordSetsFlag() {
+        var day = 10L
+        val module = setup { day }
+        module.progress.recordAnswer("a", correct = true)
+        day = 100L
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        assertFalse(vm.state.value.revealText)
+        vm.revealWord()
+        assertTrue(vm.state.value.revealText)
     }
 }
