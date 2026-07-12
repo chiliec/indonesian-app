@@ -29,6 +29,7 @@ fun QuizView(
     onPlayAudio: () -> Unit,
     onBack: () -> Unit,
     onSpeak: () -> Unit = {},
+    onRevealWord: () -> Unit = {},
 ) {
     val q = state.question ?: run {
         Box(
@@ -81,6 +82,18 @@ fun QuizView(
 
         if (q.mode == QuestionMode.LISTEN) {
             AudioButton(onPlay = onPlayAudio)
+            if (state.revealText) {
+                Spacer(Modifier.height(14.dp))
+                Text(q.card.indonesian, style = MaterialTheme.typography.headlineMedium)
+            } else if (!state.answered) {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "Terlalu berisik? Lihat kata · Too loud? Show word",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = LancarSecondaryText,
+                    modifier = Modifier.clickable(onClick = onRevealWord),
+                )
+            }
         } else {
             Text(q.promptText, style = MaterialTheme.typography.headlineMedium)
             if (q.mode == QuestionMode.PRODUCE && state.sttAvailable && !state.answered) {

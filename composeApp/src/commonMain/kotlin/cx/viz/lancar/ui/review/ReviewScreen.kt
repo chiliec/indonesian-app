@@ -30,5 +30,6 @@ fun ReviewScreen(
         onPlayAudio = { vm.playAudio() },
         onBack = onBack,
         onSpeak = { vm.onSpeak() },
+        onRevealWord = { vm.revealWord() },
     )
 }
