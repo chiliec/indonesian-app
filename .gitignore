@@ -14,3 +14,7 @@ content-prep/node_modules/
 keystore.properties
 *.jks
 *.keystore
+
+# Built distributable APKs
+dist/
+*.apk
