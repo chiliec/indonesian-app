@@ -8,6 +8,7 @@ import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,15 +30,18 @@ data class DrillUiState(
     val sttAvailable: Boolean = false,
     val listening: Boolean = false,
     val speechHint: String? = null,
+    val revealText: Boolean = false,
 )
 
 class DrillViewModel(
     private val module: AppModule,
     private val moduleId: String,
+    dispatcher: CoroutineContext = Dispatchers.Main,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
-    private val _state = MutableStateFlow(DrillUiState())
+    private val showListenText = module.settings.showListenText()
+    private val _state = MutableStateFlow(DrillUiState(revealText = showListenText))
     val state: StateFlow<DrillUiState> = _state.asStateFlow()
 
     private lateinit var pool: List<Card>
@@ -77,7 +81,7 @@ class DrillViewModel(
         _state.value = DrillUiState(
             index = index, total = queue.size, question = q,
             correctCount = correctCount, newlyMastered = _state.value.newlyMastered,
-            sttAvailable = sttAvailable,
+            sttAvailable = sttAvailable, revealText = showListenText,
         )
     }
 
@@ -129,6 +133,10 @@ class DrillViewModel(
     fun playAudio() {
         val name = _state.value.question?.audio ?: return
         scope.launch { module.audio.play(name) }
+    }
+
+    fun revealWord() {
+        _state.value = _state.value.copy(revealText = true)
     }
 
     fun dispose() { scope.cancel() }
