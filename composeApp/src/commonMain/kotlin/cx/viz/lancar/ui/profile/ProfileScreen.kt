@@ -29,6 +29,8 @@ import cx.viz.lancar.ui.theme.LancarBorder
 import cx.viz.lancar.ui.theme.LancarInk
 import cx.viz.lancar.ui.theme.LancarPanel
 import cx.viz.lancar.ui.theme.LancarSecondaryText
+import cx.viz.lancar.ui.theme.tabScreenBottomPadding
+import cx.viz.lancar.ui.theme.topContentPadding
 
 @Composable
 fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
@@ -38,11 +40,13 @@ fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
     var editingName by remember { mutableStateOf(false) }
     var confirmingReset by remember { mutableStateOf(false) }
 
+    val topPad = topContentPadding(16.dp)
+    val bottomPad = tabScreenBottomPadding()
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 22.dp, end = 22.dp, top = 64.dp, bottom = 28.dp),
+            .padding(PaddingValues(start = 22.dp, end = 22.dp, top = topPad, bottom = bottomPad)),
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         // Header

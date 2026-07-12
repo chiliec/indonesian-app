@@ -23,6 +23,8 @@ import cx.viz.lancar.ui.AppModule
 import cx.viz.lancar.ui.theme.LancarBorder
 import cx.viz.lancar.ui.theme.LancarSecondaryText
 import cx.viz.lancar.ui.theme.LocalAccentColor
+import cx.viz.lancar.ui.theme.tabScreenBottomPadding
+import cx.viz.lancar.ui.theme.topContentPadding
 
 @Composable
 fun KartuScreen(appModule: AppModule, onOpenDeck: (String) -> Unit) {
@@ -36,9 +38,11 @@ fun KartuScreen(appModule: AppModule, onOpenDeck: (String) -> Unit) {
                 CircularProgressIndicator(color = LocalAccentColor.current)
             }
         } else {
+            val topPad = topContentPadding(16.dp)
+            val bottomPad = tabScreenBottomPadding()
             LazyColumn(
                 Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 64.dp, bottom = 28.dp),
+                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = topPad, bottom = bottomPad),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item { Header() }
