@@ -18,9 +18,11 @@ import cx.viz.lancar.ui.theme.LancarAmber
 import cx.viz.lancar.ui.theme.LancarCream
 import cx.viz.lancar.ui.theme.LancarInk
 import cx.viz.lancar.ui.theme.LocalAccentColor
+import cx.viz.lancar.ui.theme.StatusBarIcons
 
 @Composable
 fun ResultsScreen(r: Results, onAgain: () -> Unit, onHome: () -> Unit) {
+    StatusBarIcons(darkIcons = false)
     Box(
         Modifier.fillMaxSize().background(LancarInk).padding(30.dp),
         contentAlignment = Alignment.Center,
