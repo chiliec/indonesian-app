@@ -2,6 +2,16 @@
 
 Lancar is a Kotlin Multiplatform + Compose Multiplatform flashcard app for learning Indonesian. It bundles 1,796 vocabulary cards across 8 modules with audio, and presents them as multiple-choice listen/read/produce drills that run entirely offline on Android and iOS.
 
+## Install (Android)
+
+Scan the QR code or open the [latest release](https://github.com/chiliec/indonesian-app/releases/latest) on your phone, download the APK, and tap to install. Requires **Android 7.0+**. Fully offline — no account, no network, no data collected.
+
+<img src="docs/install-qr.png" width="200" alt="QR code to the latest Lancar Android release" />
+
+> On first install, Android asks you to allow "install unknown apps" for your browser — that's expected for apps distributed outside the Play Store.
+
+> iOS is not yet distributed (requires an Apple Developer account — see [`docs/release-ios.md`](docs/release-ios.md)).
+
 ## Prerequisites
 
 | Tool | Version |
