@@ -39,4 +39,16 @@ class SettingsRepositoryTest {
         r.setDisplayName("   ")
         assertNull(r.displayName())
     }
+
+    @Test fun listenTextDefaultsFalse() {
+        assertFalse(repo().showListenText())
+    }
+
+    @Test fun listenTextRoundTrips() {
+        val r = repo()
+        r.setShowListenText(true)
+        assertTrue(r.showListenText())
+        r.setShowListenText(false)
+        assertFalse(r.showListenText())
+    }
 }

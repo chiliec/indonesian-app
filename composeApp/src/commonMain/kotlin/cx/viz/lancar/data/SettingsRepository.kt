@@ -17,9 +17,13 @@ class SettingsRepository(db: LancarDatabase) {
     fun accentName(): String? = get(KEY_ACCENT)
     fun setAccentName(name: String) = put(KEY_ACCENT, name)
 
+    fun showListenText(): Boolean = get(KEY_LISTEN_TEXT) == "true"
+    fun setShowListenText(on: Boolean) = put(KEY_LISTEN_TEXT, if (on) "true" else "false")
+
     private companion object {
         const val KEY_NAME = "display_name"
         const val KEY_ONBOARDED = "onboarding_seen"
         const val KEY_ACCENT = "accent"
+        const val KEY_LISTEN_TEXT = "listen_show_text"
     }
 }
