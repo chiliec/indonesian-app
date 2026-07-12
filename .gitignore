@@ -9,3 +9,8 @@ xcuserdata/
 content-prep/node_modules/
 
 .kotlin/
+
+# Release signing secrets — never commit
+keystore.properties
+*.jks
+*.keystore
