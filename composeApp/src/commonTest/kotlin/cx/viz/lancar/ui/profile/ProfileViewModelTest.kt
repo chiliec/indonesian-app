@@ -49,4 +49,13 @@ class ProfileViewModelTest {
         ProfileViewModel(m).resetProgress()
         assertEquals(0, m.progress.modulePercent(listOf("a")))
     }
+
+    @Test fun setShowListenTextPersistsAndUpdatesState() {
+        val m = module()
+        val vm = ProfileViewModel(m)
+        assertEquals(false, vm.state.value.showListenText)
+        vm.setShowListenText(true)
+        assertEquals(true, vm.state.value.showListenText)
+        assertEquals(true, m.settings.showListenText())
+    }
 }

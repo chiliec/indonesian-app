@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -82,6 +83,10 @@ fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
             Divider()
             SettingRow("🔁", "Ulangi perkenalan", "") { onReplayOnboarding() }
             Divider()
+            SettingToggleRow("👂", "Selalu tampilkan teks soal dengar", state.showListenText) {
+                vm.setShowListenText(it)
+            }
+            Divider()
             SettingRow("🗑️", "Reset progres", "") { confirmingReset = true }
             Divider()
             SettingRow("ℹ️", "Tentang", "Lancar 1.0")
@@ -122,6 +127,19 @@ fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
 @Composable
 private fun Divider() {
     Box(Modifier.fillMaxWidth().height(1.dp).background(LancarPanel))
+}
+
+@Composable
+private fun SettingToggleRow(icon: String, label: String, checked: Boolean, onToggle: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(icon, style = MaterialTheme.typography.bodyLarge)
+        Spacer(Modifier.width(14.dp))
+        Text(label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+        Switch(checked = checked, onCheckedChange = onToggle)
+    }
 }
 
 @Composable
