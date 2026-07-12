@@ -26,6 +26,8 @@ import cx.viz.lancar.ui.theme.LancarInk
 import cx.viz.lancar.ui.theme.LancarPanel
 import cx.viz.lancar.ui.theme.LancarSecondaryText
 import cx.viz.lancar.ui.theme.LocalAccentColor
+import cx.viz.lancar.ui.theme.screenBottomPadding
+import cx.viz.lancar.ui.theme.topContentPadding
 
 @Composable
 fun CardDeckScreen(appModule: AppModule, moduleId: String, onBack: () -> Unit) {
@@ -33,11 +35,13 @@ fun CardDeckScreen(appModule: AppModule, moduleId: String, onBack: () -> Unit) {
     DisposableEffect(vm) { onDispose { vm.dispose() } }
     val state by vm.state.collectAsState()
 
+    val topPad = topContentPadding(12.dp)
+    val bottomPad = screenBottomPadding(28.dp)
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 24.dp, end = 24.dp, top = 60.dp, bottom = 28.dp),
+            .padding(PaddingValues(start = 24.dp, end = 24.dp, top = topPad, bottom = bottomPad)),
     ) {
         if (state.loading) {
             Box(Modifier.fillMaxSize(), Alignment.Center) {

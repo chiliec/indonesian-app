@@ -28,6 +28,8 @@ import cx.viz.lancar.ui.theme.LancarCream
 import cx.viz.lancar.ui.theme.LancarPanel
 import cx.viz.lancar.ui.theme.LancarSecondaryText
 import cx.viz.lancar.ui.theme.LocalAccentColor
+import cx.viz.lancar.ui.theme.tabScreenBottomPadding
+import cx.viz.lancar.ui.theme.topContentPadding
 
 @Composable
 fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit, onOpenReview: () -> Unit) {
@@ -41,9 +43,11 @@ fun HomeScreen(appModule: AppModule, onOpenModule: (String) -> Unit, onOpenRevie
                 CircularProgressIndicator(color = LocalAccentColor.current)
             }
         } else {
+            val topPad = topContentPadding(16.dp)
+            val bottomPad = tabScreenBottomPadding()
             LazyColumn(
                 Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 64.dp, bottom = 28.dp),
+                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = topPad, bottom = bottomPad),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item { Header(state.name) }

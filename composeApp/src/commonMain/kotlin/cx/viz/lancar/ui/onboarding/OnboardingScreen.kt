@@ -26,6 +26,8 @@ import cx.viz.lancar.ui.theme.LancarCream
 import cx.viz.lancar.ui.theme.LancarGreen
 import cx.viz.lancar.ui.theme.LancarSecondaryText
 import cx.viz.lancar.ui.theme.LocalAccentColor
+import cx.viz.lancar.ui.theme.screenBottomPadding
+import cx.viz.lancar.ui.theme.topContentPadding
 
 @Composable
 fun OnboardingScreen(appModule: AppModule, onDone: () -> Unit) {
@@ -33,11 +35,13 @@ fun OnboardingScreen(appModule: AppModule, onDone: () -> Unit) {
     val state by vm.state.collectAsState()
     val accent = LocalAccentColor.current
 
+    val topPad = topContentPadding(16.dp)
+    val bottomPad = screenBottomPadding(28.dp)
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 26.dp, end = 26.dp, top = 74.dp, bottom = 34.dp),
+            .padding(PaddingValues(start = 26.dp, end = 26.dp, top = topPad, bottom = bottomPad)),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("LANCAR", style = MaterialTheme.typography.titleMedium, letterSpacing = 1.5.sp)

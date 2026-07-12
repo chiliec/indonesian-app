@@ -56,6 +56,7 @@ fun MainScaffold(
         Row(
             Modifier
                 .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
                 .padding(start = 14.dp, end = 14.dp, bottom = 16.dp)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(26.dp))
