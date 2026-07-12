@@ -44,11 +44,13 @@ fun QuizView(
         QuestionMode.PRODUCE -> "PILIH KATANYA · PICK THE WORD"
     }
 
+    val topPad = topContentPadding(12.dp)
+    val bottomPad = screenBottomPadding(28.dp)
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 24.dp, end = 24.dp, top = 60.dp, bottom = 28.dp),
+            .padding(PaddingValues(start = 24.dp, end = 24.dp, top = topPad, bottom = bottomPad)),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
