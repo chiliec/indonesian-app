@@ -18,3 +18,10 @@ keystore.properties
 # Built distributable APKs
 dist/
 *.apk
+
+# iOS CI signing secrets — never commit
+AuthKey_*.p8
+*.p12
+*.mobileprovision
+vendor/bundle/
+.bundle/
