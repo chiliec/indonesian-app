@@ -20,6 +20,8 @@
 	<string>Lancar uses the microphone so you can practice pronouncing Indonesian words.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Lancar checks your spoken Indonesian on your device to help you practice pronunciation.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
