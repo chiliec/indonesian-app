@@ -268,6 +268,61 @@ Same posture as Android — fully offline, collects nothing:
 
 ---
 
+## 10. Automated releases (CI)
+
+A GitHub Actions workflow (`.github/workflows/ios-testflight.yml`) builds and
+uploads to TestFlight automatically. Fastlane config lives in `fastlane/`.
+
+### Trigger
+
+- **Push a version tag:** `git tag v1.0.3 && git push origin v1.0.3`
+- **Manual:** Actions tab → "iOS TestFlight" → Run workflow.
+
+Runs on a `macos-15` runner: sets up Java 21 + Ruby, imports the signing cert
+into a temp keychain, then runs `bundle exec fastlane ios beta` (fetches the App
+Store profile via the API key, auto-increments the build number from the latest
+TestFlight build, archives with `gym`, uploads with `pilot`). The build number
+auto-increments; bump `MARKETING_VERSION` in Xcode manually for a new
+user-facing version.
+
+### One-time setup: GitHub Actions secrets
+
+Settings → Secrets and variables → Actions → New repository secret:
+
+| Secret | Value |
+|---|---|
+| `ASC_KEY_ID` | App Store Connect API key ID |
+| `ASC_ISSUER_ID` | ASC API issuer ID (UUID) |
+| `ASC_KEY_P8` | base64 of the `.p8` key contents (`base64 -i AuthKey_XXXX.p8 \| pbcopy`) |
+| `DIST_CERT_P12` | base64 of the Apple Distribution cert+key `.p12` |
+| `DIST_CERT_PASSWORD` | the `.p12` export password (may be empty) |
+
+Procedure:
+1. App Store Connect → Users and Access → Integrations → App Store Connect API →
+   create a key (App Manager role) → download the `.p8` (one-time). Note the Key
+   ID and Issuer ID.
+2. Locally: `bundle install`, then `bundle exec fastlane ios signing_assets` to
+   create/download the Apple Distribution certificate + App Store profile. Export
+   the cert+key from Keychain Access as a `.p12`, then `base64 -i dist.p12 |
+   pbcopy`.
+3. Add the five secrets above.
+
+### Local dry run
+
+`bundle exec fastlane ios beta` runs on your Mac (uses the login-keychain cert
+and a git-ignored `AuthKey_*.p8` in the repo root) without pushing a tag.
+
+### First upload
+
+Lancar has never been uploaded. CI does the first upload (build number starts at
+1). Two one-time, human-only follow-ups after the first run:
+- Apple's privacy-manifest validator may email about `PrivacyInfo.xcprivacy`
+  required-reason entries (§4) — adjust, re-tag, re-run.
+- Assign internal testers in App Store Connect → TestFlight. Export compliance is
+  already handled by `ITSAppUsesNonExemptEncryption=false`.
+
+---
+
 ## Known follow-ups (2026-07-28)
 
 **Done (this prep pass):** `PrivacyInfo.xcprivacy` authored + bundled (§4),
