@@ -9,10 +9,9 @@ runbook; store copy (shared with Android) lives in
 > `1.0.2`/build `1`, usage strings, UIKit scene lifecycle, signing Team
 > `7JF6XQC536`, `ITSAppUsesNonExemptEncryption`, and a bundled
 > `PrivacyInfo.xcprivacy` (§4) are all in place, plus `ExportOptions.plist` (§6) and
-> a live privacy-policy URL (§8). The **only remaining gate is the account-bound
-> archive/upload**: create the App Store Connect record, archive in Xcode, and
-> upload to TestFlight. Screenshots (§7) are still to capture (deferred — needs a
-> 6.9" simulator runtime).
+> a live privacy-policy URL (§8), and 6.9" screenshots (§7). The App Store Connect
+> record exists (App ID `6795209576`). The **only remaining gate is the account-bound
+> archive/upload**: archive in Xcode and upload to TestFlight.
 
 > **iOS has no free sideload.** Unlike Android — where a signed `.apk` installs
 > directly (see `release-android.md`) — there is **no way to hand an iPhone user a
@@ -260,7 +259,7 @@ Same posture as Android — fully offline, collects nothing:
 - [x] `MARKETING_VERSION 1.0.2` / `CURRENT_PROJECT_VERSION 1` set (bump build for re-uploads)
 - [x] `PrivacyInfo.xcprivacy` present and in Copy Bundle Resources (§4)
 - [x] 1024² marketing icon present in the asset catalog
-- [ ] 6.9" screenshots captured under `docs/store-assets/ios/` (§7) — **deferred: needs a 6.9" sim runtime**
+- [x] 6.9" screenshots captured under `docs/store-assets/ios/` (§7) — 6 screens @ 1320×2868
 - [ ] Store text copied from `store-listing.md` (into App Store Connect)
 - [x] Privacy-policy URL live (§8)
 - [x] Export-compliance answer set — `ITSAppUsesNonExemptEncryption=false` in `Info.plist`
@@ -275,11 +274,14 @@ Same posture as Android — fully offline, collects nothing:
 privacy-policy URL live (§8), `ExportOptions.plist` created (§6),
 `DEVELOPMENT_TEAM 7JF6XQC536` set (§2), version `1.0.2`, export-compliance flag.
 
+**Done (screenshots, 2026-07-28):** captured 6 screens @ 1320×2868 on an iPhone 16
+Pro Max sim under `docs/store-assets/ios/` (Beranda w/ 🔥 banner, Kartu picker, card
+front, card back, Progres w/ Leitner boxes, LISTEN drill). Driven via `idb`
+(`~/Library/Python/3.9/bin/idb`) + a seeded realistic review state in the sim DB.
+
 **Still open:**
-- **iOS store screenshots** — capture on a 6.9" simulator (§7). *Deferred:* the
-  machine has no iOS simulator runtime installed; `xcodebuild -downloadPlatform iOS`
-  then create an iPhone 16 Pro Max sim.
-- **App Store Connect record** — create it (§0), then archive + upload (§5–6).
+- **Archive + upload** — App Store Connect record exists (App ID `6795209576`);
+  archive in Xcode + upload to TestFlight (§5–6).
 - **`PrivacyInfo.xcprivacy` required-reason list** — finalize against the first
   upload's validator feedback (§4); bump `CURRENT_PROJECT_VERSION` per re-upload.
 - **Bundling verification** — a full simulator/device build confirming
