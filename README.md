@@ -12,6 +12,8 @@ Scan the QR code or open the [latest release](https://github.com/chiliec/indones
 
 > iOS is not yet distributed (requires an Apple Developer account — see [`docs/release-ios.md`](docs/release-ios.md)).
 
+**Privacy:** Lancar collects no data and works fully offline — [privacy policy](https://chiliec.github.io/indonesian-app/privacy.html).
+
 ## Prerequisites
 
 | Tool | Version |
