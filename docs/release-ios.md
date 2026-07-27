@@ -32,6 +32,8 @@ runbook; store copy (shared with Android) lives in
    - Name: `Lancar` · Primary language: English (U.S.) · Bundle ID: **`cx.viz.lancar`**
      (register it first under Certificates, IDs & Profiles → Identifiers, or let
      Xcode's automatic signing create it) · SKU: `lancar` (any unique string).
+   - **DONE (2026-07-28):** record created. **Apple App ID: `6795209576`**
+     (Team ID `7JF6XQC536`).
 
 Nothing below reaches TestFlight or the store until step 0 is done.
 
