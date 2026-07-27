@@ -5,11 +5,14 @@ runbook; store copy (shared with Android) lives in
 [`store-listing.md`](store-listing.md). The Android counterpart is
 [`release-android.md`](release-android.md).
 
-> Status: the Xcode project is **App-Store-shaped** (correct bundle id, version
-> wiring, usage strings, UIKit scene lifecycle) but **not yet submittable**. Two
-> things gate the first upload — an **Apple Developer Program membership**
-> (US$99/yr) and a **`PrivacyInfo.xcprivacy`** manifest (§4). Everything not
-> requiring the paid account is prepared or documented below.
+> Status (2026-07-28): the Xcode project is **upload-ready** — bundle id, version
+> `1.0.2`/build `1`, usage strings, UIKit scene lifecycle, signing Team
+> `7JF6XQC536`, `ITSAppUsesNonExemptEncryption`, and a bundled
+> `PrivacyInfo.xcprivacy` (§4) are all in place, plus `ExportOptions.plist` (§6) and
+> a live privacy-policy URL (§8). The **only remaining gate is the account-bound
+> archive/upload**: create the App Store Connect record, archive in Xcode, and
+> upload to TestFlight. Screenshots (§7) are still to capture (deferred — needs a
+> 6.9" simulator runtime).
 
 > **iOS has no free sideload.** Unlike Android — where a signed `.apk` installs
 > directly (see `release-android.md`) — there is **no way to hand an iPhone user a
@@ -240,9 +243,9 @@ Same posture as Android — fully offline, collects nothing:
 
 - **App Privacy (Data collection):** No data collected. (Matches
   `PrivacyInfo.xcprivacy`.)
-- **Privacy policy URL:** required for App Store. Draft one stating "no data
-  collected, no accounts, fully offline" and host it (e.g. GitHub Pages). **← the
-  one artifact still to create — shared with the Android listing.**
+- **Privacy policy URL:** live at
+  **https://chiliec.github.io/indonesian-app/privacy.html** (GitHub Pages, source
+  `docs/privacy.html`; shared with the Android listing).
 - **Age rating:** educational vocabulary, no objectionable content → 4+.
 - **Export compliance:** no non-exempt encryption (see §6).
 - **Content rights:** original content + bundled audio owned/licensed.
@@ -251,24 +254,32 @@ Same posture as Android — fully offline, collects nothing:
 
 ## 9. Pre-upload checklist
 
-- [ ] Apple Developer membership active; Team selected in Signing (§2)
-- [ ] `CURRENT_PROJECT_VERSION` bumped (strictly greater than last uploaded)
-- [ ] `PrivacyInfo.xcprivacy` present and in Copy Bundle Resources (§4)
-- [ ] 1024² marketing icon present in the asset catalog
-- [ ] 6.9" screenshots captured under `docs/store-assets/ios/` (§7)
-- [ ] Store text copied from `store-listing.md`
-- [ ] Privacy-policy URL live
-- [ ] Export-compliance answer set (or `ITSAppUsesNonExemptEncryption` in plist)
+- [x] Apple Developer membership active; Team `7JF6XQC536` set in `project.pbxproj` (§2)
+- [x] `MARKETING_VERSION 1.0.2` / `CURRENT_PROJECT_VERSION 1` set (bump build for re-uploads)
+- [x] `PrivacyInfo.xcprivacy` present and in Copy Bundle Resources (§4)
+- [x] 1024² marketing icon present in the asset catalog
+- [ ] 6.9" screenshots captured under `docs/store-assets/ios/` (§7) — **deferred: needs a 6.9" sim runtime**
+- [ ] Store text copied from `store-listing.md` (into App Store Connect)
+- [x] Privacy-policy URL live (§8)
+- [x] Export-compliance answer set — `ITSAppUsesNonExemptEncryption=false` in `Info.plist`
+- [x] `ExportOptions.plist` present for CLI upload (§6): `iosApp/ExportOptions.plist`
 - [ ] `Product → Archive` succeeds and validates in the Organizer
 
 ---
 
-## Known follow-ups (not blockers for the runbook, but for the first upload)
+## Known follow-ups (2026-07-28)
 
-- **`PrivacyInfo.xcprivacy`** — author + bundle it; finalize the required-reason list
-  against the first upload's validation (§4).
-- **Privacy-policy URL** — must be authored + hosted (shared with Android; §8).
-- **iOS store screenshots** — capture on a 6.9" simulator (§7).
-- **`ExportOptions.plist`** — needed only for CLI export/upload (§6); the Xcode
-  Organizer path doesn't require it.
-- **`DEVELOPMENT_TEAM`** — empty until the account exists; set via Xcode signing (§2).
+**Done (this prep pass):** `PrivacyInfo.xcprivacy` authored + bundled (§4),
+privacy-policy URL live (§8), `ExportOptions.plist` created (§6),
+`DEVELOPMENT_TEAM 7JF6XQC536` set (§2), version `1.0.2`, export-compliance flag.
+
+**Still open:**
+- **iOS store screenshots** — capture on a 6.9" simulator (§7). *Deferred:* the
+  machine has no iOS simulator runtime installed; `xcodebuild -downloadPlatform iOS`
+  then create an iPhone 16 Pro Max sim.
+- **App Store Connect record** — create it (§0), then archive + upload (§5–6).
+- **`PrivacyInfo.xcprivacy` required-reason list** — finalize against the first
+  upload's validator feedback (§4); bump `CURRENT_PROJECT_VERSION` per re-upload.
+- **Bundling verification** — a full simulator/device build confirming
+  `PrivacyInfo.xcprivacy` lands in the `.app` was not run in the prep session (the
+  pbxproj wiring parses cleanly); the first `Product → Archive` covers it.
