@@ -51,4 +51,16 @@ class SettingsRepositoryTest {
         r.setShowListenText(false)
         assertFalse(r.showListenText())
     }
+
+    @Test fun autoPlayDefaultsTrue() {
+        assertTrue(repo().autoPlayAudio())
+    }
+
+    @Test fun autoPlayRoundTrips() {
+        val r = repo()
+        r.setAutoPlayAudio(false)
+        assertFalse(r.autoPlayAudio())
+        r.setAutoPlayAudio(true)
+        assertTrue(r.autoPlayAudio())
+    }
 }
