@@ -8,7 +8,7 @@ import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.db.LancarDatabase
 import cx.viz.lancar.domain.Card
 import cx.viz.lancar.domain.ModuleMeta
-import cx.viz.lancar.domain.QuestionMode
+import cx.viz.lancar.domain.QuestionFactory
 import cx.viz.lancar.platform.AudioPlayer
 import cx.viz.lancar.platform.NoopAudioPlayer
 import cx.viz.lancar.ui.AppModule
@@ -44,6 +44,21 @@ private class RecordingAudio : AudioPlayer {
     override suspend fun play(fileName: String) { played += fileName }
 }
 
+// Deterministic RNG that always forces LISTEN mode in QuestionFactory:
+//   nextInt(5) [PRODUCE gate] → 1 ≠ 0 → LISTEN always chosen
+//   nextInt(n) [shuffle / insert position] → safe value in [0, n)
+// On JVM, nextInt(n) for non-power-of-2 calls nextBits(32) then ushr 1 then % n.
+// nextBits(32) must return 2, not 0: `1 shl 32` wraps to 1 on JVM (shift mod 32),
+// so saturating via (1 shl bitCount)-1 would yield 0 for bitCount=32. Hence the
+// explicit 3-branch implementation below.
+private val listenRng = object : kotlin.random.Random() {
+    override fun nextBits(bitCount: Int): Int = when {
+        bitCount <= 0 -> 0  // nextInt(1): fastLog2(1)=0 → returns 0 ✓
+        bitCount == 1 -> 1  // nextInt(2) power-of-2 path: 1-bit value ✓
+        else -> 2           // nextInt(5): nextBits(32)=2 → ushr1=1 → 1%5=1 ≠ 0 ✓
+    }
+}
+
 // Due cards need audio for LISTEN mode to be reachable at all.
 private class FakeAudioReviewContent : ContentRepository() {
     private val cards = listOf(
@@ -69,7 +84,8 @@ class ReviewViewModelTest {
         val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         LancarDatabase.Schema.create(driver)
         val db = LancarDatabase(driver)
-        return AppModule(content, ProgressRepository(db, today), SettingsRepository(db), audio)
+        return AppModule(content, ProgressRepository(db, today), SettingsRepository(db), audio,
+            questionFactory = QuestionFactory(rng = listenRng))
     }
 
     @Test fun queueContainsOnlyDueCardsAcrossModules() {
@@ -118,13 +134,11 @@ class ReviewViewModelTest {
     @Test fun autoPlayMatchesEmittedModeWhenOn() {
         var day = 10L
         val audio = RecordingAudio()
-        val module = setup(FakeAudioReviewContent(), audio) { day } // autoPlay defaults on
-        module.progress.recordAnswer("a", correct = true) // schedule a due card
+        val module = setup(FakeAudioReviewContent(), audio) { day } // autoPlay defaults on, listenRng forces LISTEN
+        module.progress.recordAnswer("a", correct = true)
         day = 100L
         val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
-        val q = vm.state.value.question!!
-        val expected = if (q.mode == QuestionMode.LISTEN) listOf(q.audio) else emptyList()
-        assertEquals(expected, audio.played)
+        assertEquals(listOf("a.m4a"), audio.played) // LISTEN guaranteed by listenRng
     }
 
     @Test fun autoPlaySilentWhenOff() {

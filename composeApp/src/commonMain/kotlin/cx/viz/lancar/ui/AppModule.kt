@@ -21,8 +21,8 @@ class AppModule(
     val audio: AudioPlayer,
     val tts: SpeechSynthesizer = NoopSpeechSynthesizer(),
     val stt: SpeechRecognizer = NoopSpeechRecognizer(),
+    val questionFactory: QuestionFactory = QuestionFactory(),
 ) {
-    val questionFactory = QuestionFactory()
 
     private val _accent = MutableStateFlow(Accent.fromName(settings.accentName()))
     val accent: StateFlow<Accent> = _accent.asStateFlow()
