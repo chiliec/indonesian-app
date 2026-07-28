@@ -5,12 +5,14 @@ import cx.viz.lancar.domain.CardProgress
 import cx.viz.lancar.domain.LeitnerScheduler
 import cx.viz.lancar.domain.MasteryCalculator
 import cx.viz.lancar.domain.Schedule
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 data class Totals(val correct: Int, val wrong: Int)
 
+@OptIn(ExperimentalTime::class)
 class ProgressRepository(
     private val db: LancarDatabase,
     private val today: () -> Long = {

@@ -1,7 +1,7 @@
 [versions]
 agp = "8.9.0"
 kotlin = "2.2.20"
-compose-plugin = "1.8.2"
+compose-plugin = "1.9.3"
 android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
@@ -10,7 +10,7 @@ androidx-navigation = "2.9.2"
 androidx-lifecycle-viewmodel = "2.10.0"
 sqldelight = "2.0.2"
 robolectric = "4.13"
-kotlinx-datetime = "0.6.2"
+kotlinx-datetime = "0.7.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

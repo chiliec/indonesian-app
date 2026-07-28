@@ -48,6 +48,12 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
   `decodeFromString<List<Card>>()`. The generic-inferred path crashes in the naming-strategy
   annotation lookup on arm64 (null deref in `kotlin.Any#equals`). Also set `useAlternativeNames =
   false` in the `Json` config.
+- **TextField tap crash (fixed in 1.0.3)**: on-device (arm64e) the app crashed with
+  `EXC_BAD_ACCESS` the moment any `TextField` was focused — inside CMP's own
+  `ComposeSceneMediator.startInputMethod` coroutine path, not app code. Sim never reproduced it.
+  Fix: **CMP 1.8.2 → 1.9.3** (rewrote iOS text input). 1.9.3 pulls **kotlinx-datetime 0.7.1**,
+  which moved `Clock` to the stable `kotlin.time.Clock` (`@OptIn(ExperimentalTime)`); datetime is
+  now pinned to 0.7.1. Kotlin stays 2.2.20; resolved coroutines stays 1.9.0 (not the cause).
 - **SQLite**: `libsqlite3.tbd` must be in the Xcode Frameworks build phase.
 - **Simulator ID**: iPhone 16 Pro (iOS 26.4) = `32623728-2A40-4964-912D-252369F2692D`.
   (Earlier IDs `7E679B15…`/`057ACF07…` were wiped in a disk cleanup — sims aren't stable across resets.)
