@@ -33,37 +33,28 @@ machines still build without the secret.
 `keystore.properties` format:
 
 ```properties
-storeFile=upload-keystore.jks
+storeFile=lancar-release.jks
 storePassword=<store password>
-keyAlias=upload
+keyAlias=lancar
 keyPassword=<key password>
 ```
 
-Both `keystore.properties` and `*.jks` / `*.keystore` are in `.gitignore` — **never
-commit them**.
+Both `keystore.properties` and `*.jks` / `*.keystore` / `*.bak` are in `.gitignore`
+— **never commit them**.
 
-### ⚠️ The current keystore is a PLACEHOLDER
+### The real upload key is in place
 
-`upload-keystore.jks` in the repo root was generated for the local dry run with the
-password `lancar-placeholder`. Before the **first real upload** you must decide the
-upload key you will keep forever:
+The active upload key is **`lancar-release.jks`** (alias `lancar`, valid to 2053,
+SHA-256 `C1:17:F4:9B:…:2F:22`), referenced by `keystore.properties`. It replaced the
+original throwaway placeholder (`upload-keystore.jks`, alias `upload`, password
+`lancar-placeholder`), which has been removed from the repo.
 
-- **Option A (recommended): generate a fresh, properly-secured upload key.** Do this
-  *before* the first upload — after Google records your upload key you can only
-  change it via a reset request.
-  ```bash
-  keytool -genkeypair -v \
-    -keystore upload-keystore.jks \
-    -alias upload -keyalg RSA -keysize 2048 -validity 10000 \
-    -dname "CN=Lancar, OU=Mobile, O=viz.cx, L=Jakarta, S=Jakarta, C=ID"
-  # enter a strong password when prompted; put it in keystore.properties
-  ```
-- **Option B:** keep the placeholder but change its password (`keytool -storepasswd`
-  / `-keypasswd`) and update `keystore.properties`.
+> Confirm this key's SHA-256 matches **Play Console → App integrity → Upload key
+> certificate**. If Play shows a different fingerprint, the wrong key was enrolled —
+> resolve before the next upload.
 
-**Back up the `.jks` file and its passwords** somewhere durable (password manager +
-offsite). Losing the upload key means filing a Play upload-key reset; losing it
-before enrolling in Play App Signing would mean you can never update the app.
+**Back up `lancar-release.jks` and its password** somewhere durable (password
+manager + offsite). Losing the upload key means filing a Play upload-key reset.
 
 ---
 
@@ -176,7 +167,7 @@ Recommended path for the first upload (fastest review, up to 100 testers):
 
 1. Play Console → **Testing → Internal testing → Create new release**.
 2. **Play App Signing:** accept "Use Google-generated key" (Google generates and holds
-   the app signing key; your `upload-keystore.jks` becomes the upload key). This is the
+   the app signing key; your `lancar-release.jks` becomes the upload key). This is the
    default and recommended.
 3. Upload `composeApp-release.aab`.
 4. Fill release name (e.g. `1.0 (1)`) and release notes (reuse "What's new — v1.0").
@@ -191,7 +182,7 @@ requires the full store listing + all content forms complete.
 ## 7. Pre-upload checklist
 
 - [ ] `versionCode` bumped (strictly greater than last uploaded)
-- [ ] Real (non-placeholder) upload keystore in place, password set, **backed up**
+- [x] Real upload keystore in place (`lancar-release.jks`, alias `lancar`), password set — **back up offsite**
 - [ ] `./gradlew :composeApp:bundleRelease` succeeds
 - [ ] `jarsigner -verify` reports "jar verified" with `CN=Lancar`
 - [ ] Screenshots + feature graphic + 512 icon on hand
