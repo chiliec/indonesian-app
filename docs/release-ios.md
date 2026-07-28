@@ -9,8 +9,8 @@ runbook; store copy (shared with Android) lives in
 > first established with build 1 of `1.0.2`, archived and uploaded by CI (§10), and
 > is **VALID** in App Store Connect (App ID `6795209576`, Team `7JF6XQC536`) — the
 > privacy-manifest validator passed. New builds flow to that group automatically;
-> the current user-facing version is **`1.0.4`** (audio-on-device fix — see release
-> history below). All prep (usage strings, UIKit scene lifecycle,
+> the current user-facing version is **`1.0.5`** (auto-play audio — CI build in
+> flight; see release history below). All prep (usage strings, UIKit scene lifecycle,
 > `ITSAppUsesNonExemptEncryption`, bundled `PrivacyInfo.xcprivacy` §4,
 > `ExportOptions.plist` §6, live privacy-policy URL §8, 6.9" screenshots §7) is in
 > place. **Releases are now automated** — push a `v*` tag to ship a build (§10) and
@@ -427,6 +427,9 @@ internal testing group in App Store Connect (§11) — now installable via TestF
 - `v1.0.4` — on-device audio silence fix: activate the shared `AVAudioSession`
   with the `.playback` category so clips are audible regardless of the hardware
   mute switch (the sim has no switch, so it never reproduced there).
+- `v1.0.5` — auto-play audio feature: LISTEN quiz questions play automatically on
+  entry; Kartu flashcards play on card arrival (keyed on `settledPage`, not flip);
+  Profile toggle "🔊 Putar audio otomatis" (default on).
 
 **Still open:**
 - **External testing / App Store submission** — when ready, promote past internal
