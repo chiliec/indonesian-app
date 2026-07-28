@@ -3,6 +3,7 @@ package cx.viz.lancar.ui.review
 import cx.viz.lancar.data.MIXED_ID
 import cx.viz.lancar.domain.Card
 import cx.viz.lancar.domain.PronunciationMatcher
+import cx.viz.lancar.domain.QuestionMode
 import cx.viz.lancar.ui.AppModule
 import cx.viz.lancar.ui.drill.DrillUiState
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +25,7 @@ class ReviewViewModel(
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
     private val showListenText = module.settings.showListenText()
+    private val autoPlay = module.settings.autoPlayAudio()
     private val _state = MutableStateFlow(DrillUiState(revealText = showListenText))
     val state: StateFlow<DrillUiState> = _state.asStateFlow()
 
@@ -54,6 +56,9 @@ class ReviewViewModel(
             index = index, total = queue.size, question = q, correctCount = correctCount,
             sttAvailable = sttAvailable, revealText = showListenText,
         )
+        if (autoPlay && q.mode == QuestionMode.LISTEN) {
+            q.audio?.let { name -> scope.launch { module.audio.play(name) } }
+        }
     }
 
     fun answer(optionIndex: Int) {

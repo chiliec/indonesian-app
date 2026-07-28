@@ -8,6 +8,8 @@ import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.db.LancarDatabase
 import cx.viz.lancar.domain.Card
 import cx.viz.lancar.domain.ModuleMeta
+import cx.viz.lancar.domain.QuestionMode
+import cx.viz.lancar.platform.AudioPlayer
 import cx.viz.lancar.platform.NoopAudioPlayer
 import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +39,20 @@ private class FakeReviewContent : ContentRepository() {
     }
 }
 
+private class RecordingAudio : AudioPlayer {
+    val played = mutableListOf<String>()
+    override suspend fun play(fileName: String) { played += fileName }
+}
+
+// Due cards need audio for LISTEN mode to be reachable at all.
+private class FakeAudioReviewContent : ContentRepository() {
+    private val cards = listOf(
+        Card(id = "a", indonesian = "satu", english = "one", audio = "a.m4a"),
+        Card(id = "b", indonesian = "dua", english = "two", audio = "b.m4a"),
+    )
+    override suspend fun cards(moduleId: String): List<Card> = cards
+}
+
 class ReviewViewModelTest {
     private fun setup(today: () -> Long): AppModule {
         @Suppress("SwallowedException")
@@ -45,6 +61,15 @@ class ReviewViewModelTest {
         LancarDatabase.Schema.create(driver)
         val db = LancarDatabase(driver)
         return AppModule(FakeReviewContent(), ProgressRepository(db, today), SettingsRepository(db), NoopAudioPlayer())
+    }
+
+    private fun setup(content: ContentRepository, audio: AudioPlayer, today: () -> Long): AppModule {
+        @Suppress("SwallowedException")
+        try { Class.forName("org.sqlite.JDBC") } catch (_: ClassNotFoundException) { }
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        LancarDatabase.Schema.create(driver)
+        val db = LancarDatabase(driver)
+        return AppModule(content, ProgressRepository(db, today), SettingsRepository(db), audio)
     }
 
     @Test fun queueContainsOnlyDueCardsAcrossModules() {
@@ -88,5 +113,29 @@ class ReviewViewModelTest {
         assertFalse(vm.state.value.revealText)
         vm.revealWord()
         assertTrue(vm.state.value.revealText)
+    }
+
+    @Test fun autoPlayMatchesEmittedModeWhenOn() {
+        var day = 10L
+        val audio = RecordingAudio()
+        val module = setup(FakeAudioReviewContent(), audio) { day } // autoPlay defaults on
+        module.progress.recordAnswer("a", correct = true) // schedule a due card
+        day = 100L
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        val q = vm.state.value.question!!
+        val expected = if (q.mode == QuestionMode.LISTEN) listOf(q.audio) else emptyList()
+        assertEquals(expected, audio.played)
+    }
+
+    @Test fun autoPlaySilentWhenOff() {
+        var day = 10L
+        val audio = RecordingAudio()
+        val module = setup(FakeAudioReviewContent(), audio) { day }
+        module.progress.recordAnswer("a", correct = true)
+        day = 100L
+        module.settings.setAutoPlayAudio(false)
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        assertTrue(vm.state.value.question != null)
+        assertTrue(audio.played.isEmpty())
     }
 }
