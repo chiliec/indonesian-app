@@ -12,7 +12,8 @@ runbook; store copy (shared with Android) lives in
 > bundled `PrivacyInfo.xcprivacy` §4, `ExportOptions.plist` §6, live privacy-policy
 > URL §8, 6.9" screenshots §7) is in place. **Releases are now automated** — push a
 > `v*` tag to ship a build (§10). The only manual step left is a one-time
-> **internal-tester assignment** in the App Store Connect TestFlight UI.
+> **internal-tester assignment** in the App Store Connect TestFlight UI —
+> step-by-step in §11.
 
 > **iOS has no free sideload.** Unlike Android — where a signed `.apk` installs
 > directly (see `release-android.md`) — there is **no way to hand an iPhone user a
@@ -334,6 +335,64 @@ them automatically).
 
 ---
 
+## 11. Assign internal testers — App Store Connect (one-time)
+
+Build 1 of `1.0.2` is already **VALID** in TestFlight (App ID `6795209576`, Team
+`7JF6XQC536`). Export compliance is pre-answered via
+`ITSAppUsesNonExemptEncryption=false`, so the build has no "Missing Compliance"
+gate. The only remaining step is putting testers on it.
+
+### Step 1 — Testers must be App Store Connect users
+
+Internal testers (up to 100) must be users on the account. The Account Holder
+(you) is already covered. To add another:
+
+1. https://appstoreconnect.apple.com → **Users and Access**.
+2. **+** → name + Apple ID email → role **Developer** (or **App Manager**) →
+   optionally scope to Lancar → **Invite**.
+3. They accept the email invite before they can be added as a tester.
+
+Skip this entirely to test only on your own device.
+
+### Step 2 — Create an internal group and attach the build
+
+1. **My Apps → Lancar → TestFlight** tab.
+2. Under **Internal Testing**, click **+** (or use the default **App Store
+   Connect Users** group).
+3. Name it e.g. `Internal` → **Create**.
+4. Open the group → **Testers** → **+** → tick yourself (and anyone from Step 1)
+   → **Add**.
+5. Group's **Builds** → **+** → select **1.0.2 (1)** → **Add**.
+
+Because export compliance is already declared, the build shows **Ready to Test**
+immediately (no "Manage Compliance" prompt). Each tester gets an email + a
+TestFlight push.
+
+### Step 3 — Install on device
+
+1. Install **TestFlight** from the App Store on the iPhone.
+2. Open the invite → **Start Testing**, or open TestFlight and find Lancar under
+   available apps.
+3. **Install** → launch. Internal builds need **no** UDID registration and **no**
+   Beta App Review.
+
+### After this
+
+Future releases flow to these testers automatically: bump `MARKETING_VERSION` in
+Xcode for a new user-facing version, then `git tag v1.0.3 && git push origin
+v1.0.3` — CI (§10) builds, auto-increments the build number, uploads, and
+TestFlight pushes it to the internal group.
+
+### Going wider (later, optional)
+
+- **External testing** — up to 10,000 testers via a public link, but needs a
+  one-time light **Beta App Review** per version plus "Test Information" (what to
+  test, contact email). TestFlight tab → **External Testing**.
+- **App Store submission** — the remaining §9 checklist item is copying store
+  text from `store-listing.md` into the listing, then **Submit for Review**.
+
+---
+
 ## Known follow-ups (2026-07-28)
 
 **Done (this prep pass):** `PrivacyInfo.xcprivacy` authored + bundled (§4),
@@ -352,5 +411,7 @@ build 1 of `1.0.2` is **VALID** in TestFlight. Validator passed, so
 end-to-end by the successful `gym` build + upload.
 
 **Still open:**
-- **Assign internal testers** in the App Store Connect TestFlight UI (one-time).
-- **External testing / App Store submission** — when ready, promote past internal.
+- **Assign internal testers** in the App Store Connect TestFlight UI (one-time) —
+  step-by-step in §11.
+- **External testing / App Store submission** — when ready, promote past internal
+  (§11 "Going wider").
