@@ -58,4 +58,13 @@ class ProfileViewModelTest {
         assertEquals(true, vm.state.value.showListenText)
         assertEquals(true, m.settings.showListenText())
     }
+
+    @Test fun setAutoPlayPersistsAndUpdatesState() {
+        val m = module()
+        val vm = ProfileViewModel(m)
+        assertEquals(true, vm.state.value.autoPlay) // defaults on
+        vm.setAutoPlay(false)
+        assertEquals(false, vm.state.value.autoPlay)
+        assertEquals(false, m.settings.autoPlayAudio())
+    }
 }

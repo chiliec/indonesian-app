@@ -87,6 +87,10 @@ fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
                 vm.setShowListenText(it)
             }
             Divider()
+            SettingToggleRow("🔊", "Putar audio otomatis", state.autoPlay) {
+                vm.setAutoPlay(it)
+            }
+            Divider()
             SettingRow("🗑️", "Reset progres", "") { confirmingReset = true }
             Divider()
             SettingRow("ℹ️", "Tentang", "Lancar 1.0")

@@ -6,7 +6,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-data class ProfileUiState(val name: String, val accent: Accent, val showListenText: Boolean)
+data class ProfileUiState(
+    val name: String,
+    val accent: Accent,
+    val showListenText: Boolean,
+    val autoPlay: Boolean,
+)
 
 class ProfileViewModel(private val module: AppModule) {
     private val _state = MutableStateFlow(
@@ -14,6 +19,7 @@ class ProfileViewModel(private val module: AppModule) {
             name = module.settings.displayName().orEmpty(),
             accent = module.accent.value,
             showListenText = module.settings.showListenText(),
+            autoPlay = module.settings.autoPlayAudio(),
         ),
     )
     val state: StateFlow<ProfileUiState> = _state.asStateFlow()
@@ -31,6 +37,11 @@ class ProfileViewModel(private val module: AppModule) {
     fun setShowListenText(on: Boolean) {
         module.settings.setShowListenText(on)
         _state.value = _state.value.copy(showListenText = on)
+    }
+
+    fun setAutoPlay(on: Boolean) {
+        module.settings.setAutoPlayAudio(on)
+        _state.value = _state.value.copy(autoPlay = on)
     }
 
     fun resetProgress() = module.progress.reset()
