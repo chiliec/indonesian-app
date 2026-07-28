@@ -406,6 +406,10 @@ TestFlight pushes it to the internal group.
 
 ## 12. App Store metadata upload — `fastlane ios release` (prepare only)
 
+> **DONE (2026-07-28):** ran successfully — the `1.0.5` App Store listing (text +
+> review contact + 6 screenshots) is populated in App Store Connect. No binary
+> uploaded, not submitted. Remaining steps are the manual ASC forms below.
+
 The `release` lane (`fastlane/Fastfile`) pushes the App Store **listing** — text
 and screenshots — to the `1.0.5` version via `deliver` (`upload_to_app_store`). It
 **does not submit for review** and **does not upload a binary** (the build is
@@ -416,18 +420,26 @@ Sources of truth:
   (name, subtitle, description, keywords, promotional text, categories
   EDUCATION/REFERENCE, support/marketing URL → GitHub Pages `docs/index.html`,
   privacy URL → `docs/privacy.html`, release notes, copyright).
+- **Review contact:** `fastlane/metadata/review_information/` — name/email/notes
+  are tracked; `phone_number.txt` is **git-ignored** (personal number, kept local).
 - **Screenshots:** `docs/store-assets/ios/` (the six 1320×2868 6.9" PNGs). The lane
   stages copies into a git-ignored `fastlane/screenshots/en-US/` each run, so
   `docs/store-assets/ios/` stays the single source.
 
-Run it (needs the ASC API key — `AuthKey_*.p8` in repo root plus `ASC_KEY_ID` /
-`ASC_ISSUER_ID` exported, same as the `beta` lane):
+Credentials: the ASC API `.p8` is `AuthKey_*.p8` in the repo root (auto-discovered);
+`ASC_KEY_ID` / `ASC_ISSUER_ID` come from the git-ignored `fastlane/.env` (dotenv
+auto-load; template in `fastlane/.env.example`). Then:
 
 ```bash
-export ASC_KEY_ID=948K3FKL2H
-export ASC_ISSUER_ID=<issuer-uuid>
 bundle exec fastlane ios release
 ```
+
+> **Gotcha — review contact is required.** `deliver` unconditionally fetches the
+> app-store *review detail*; on a first-ever App Store version that record doesn't
+> exist, so it logs `Error fetching app store review detail - No data` and then
+> *creates* it — which the ASC API rejects unless `contactPhone` is present and in
+> `+<country> <number>` form. Hence the `review_information/` files (incl. the phone)
+> are mandatory for this lane, not optional. The "No data" line itself is benign.
 
 Then, in App Store Connect (still manual — not covered by the lane):
 1. **App Privacy** → *No data collected* (matches `PrivacyInfo.xcprivacy`, §8).
@@ -469,14 +481,14 @@ internal testing group in App Store Connect (§11) — now installable via TestF
   Profile toggle "🔊 Putar audio otomatis" (default on).
 
 **Done (App Store metadata automation, 2026-07-28):** added the `release` lane (§12)
-— `deliver` pushes `fastlane/metadata/` (text) + `docs/store-assets/ios/`
+— `deliver` pushes `fastlane/metadata/` (text + review contact) + `docs/store-assets/ios/`
 (screenshots) to the 1.0.5 App Store version, no submit, no binary. Added a
 support/marketing landing page `docs/index.html` (GitHub Pages) for the listing's
-support + marketing URLs.
+support + marketing URLs. **Ran the lane** — the 1.0.5 listing is populated in ASC.
 
 **Still open:**
-- **Run `fastlane ios release`** to populate the App Store listing, then finish the
-  manual App Store Connect steps (App Privacy, age rating, pick build, Submit for
-  Review — §12).
+- **Manual ASC forms + submit** — App Privacy (No data collected), age rating (4+),
+  pick build `1.0.5 (n)`, then **Submit for Review** (§12). The lane can automate the
+  submit later via `submit_for_review: true`.
 - **External testing** — optional wider beta; needs a one-time light Beta App Review
   + Test Information (§11 "Going wider").
