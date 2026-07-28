@@ -266,7 +266,8 @@ Same posture as Android — fully offline, collects nothing:
 - [x] `PrivacyInfo.xcprivacy` present and in Copy Bundle Resources (§4)
 - [x] 1024² marketing icon present in the asset catalog
 - [x] 6.9" screenshots captured under `docs/store-assets/ios/` (§7) — 6 screens @ 1320×2868
-- [ ] Store text copied from `store-listing.md` (into App Store Connect)
+- [~] Store text + screenshots automated via `fastlane ios release` (§12) — staged in
+  `fastlane/metadata/`; run the lane to push them to App Store Connect
 - [x] Privacy-policy URL live (§8)
 - [x] Export-compliance answer set — `ITSAppUsesNonExemptEncryption=false` in `Info.plist`
 - [x] `ExportOptions.plist` present for CLI upload (§6): `iosApp/ExportOptions.plist`
@@ -396,8 +397,44 @@ TestFlight pushes it to the internal group.
 - **External testing** — up to 10,000 testers via a public link, but needs a
   one-time light **Beta App Review** per version plus "Test Information" (what to
   test, contact email). TestFlight tab → **External Testing**.
-- **App Store submission** — the remaining §9 checklist item is copying store
-  text from `store-listing.md` into the listing, then **Submit for Review**.
+- **App Store submission** — metadata + screenshots are now automated by the
+  `release` lane (§12). Run it to populate the 1.0.5 App Store version, finish the
+  App Privacy + age-rating forms and pick the build in App Store Connect, then
+  **Submit for Review**.
+
+---
+
+## 12. App Store metadata upload — `fastlane ios release` (prepare only)
+
+The `release` lane (`fastlane/Fastfile`) pushes the App Store **listing** — text
+and screenshots — to the `1.0.5` version via `deliver` (`upload_to_app_store`). It
+**does not submit for review** and **does not upload a binary** (the build is
+already on TestFlight from the `beta` lane / tag-triggered CI, §10).
+
+Sources of truth:
+- **Text:** `fastlane/metadata/` — mirrors [`store-listing.md`](store-listing.md)
+  (name, subtitle, description, keywords, promotional text, categories
+  EDUCATION/REFERENCE, support/marketing URL → GitHub Pages `docs/index.html`,
+  privacy URL → `docs/privacy.html`, release notes, copyright).
+- **Screenshots:** `docs/store-assets/ios/` (the six 1320×2868 6.9" PNGs). The lane
+  stages copies into a git-ignored `fastlane/screenshots/en-US/` each run, so
+  `docs/store-assets/ios/` stays the single source.
+
+Run it (needs the ASC API key — `AuthKey_*.p8` in repo root plus `ASC_KEY_ID` /
+`ASC_ISSUER_ID` exported, same as the `beta` lane):
+
+```bash
+export ASC_KEY_ID=948K3FKL2H
+export ASC_ISSUER_ID=<issuer-uuid>
+bundle exec fastlane ios release
+```
+
+Then, in App Store Connect (still manual — not covered by the lane):
+1. **App Privacy** → *No data collected* (matches `PrivacyInfo.xcprivacy`, §8).
+2. **Age rating** → 4+ (educational, no objectionable content).
+3. The 1.0.5 version → **Build** → select build `1.0.5 (n)`.
+4. **Add for Review → Submit**. (To automate the submit later, flip
+   `submit_for_review: true` in the lane.)
 
 ---
 
@@ -431,8 +468,15 @@ internal testing group in App Store Connect (§11) — now installable via TestF
   entry; Kartu flashcards play on card arrival (keyed on `settledPage`, not flip);
   Profile toggle "🔊 Putar audio otomatis" (default on).
 
+**Done (App Store metadata automation, 2026-07-28):** added the `release` lane (§12)
+— `deliver` pushes `fastlane/metadata/` (text) + `docs/store-assets/ios/`
+(screenshots) to the 1.0.5 App Store version, no submit, no binary. Added a
+support/marketing landing page `docs/index.html` (GitHub Pages) for the listing's
+support + marketing URLs.
+
 **Still open:**
-- **External testing / App Store submission** — when ready, promote past internal
-  (§11 "Going wider"). External needs a one-time light Beta App Review + Test
-  Information; App Store submission needs the store text copied from
-  `store-listing.md` (§9's last unchecked item) + age rating + Submit for Review.
+- **Run `fastlane ios release`** to populate the App Store listing, then finish the
+  manual App Store Connect steps (App Privacy, age rating, pick build, Submit for
+  Review — §12).
+- **External testing** — optional wider beta; needs a one-time light Beta App Review
+  + Test Information (§11 "Going wider").

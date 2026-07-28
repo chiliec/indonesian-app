@@ -31,3 +31,6 @@ vendor/bundle/
 
 # fastlane Gemfile.lock is resolved by CI under its own Ruby (avoids ruby-version pin drift)
 Gemfile.lock
+
+# deliver stages screenshots here at runtime from docs/store-assets/ios (single source of truth)
+fastlane/screenshots/
