@@ -13,7 +13,10 @@ content-prep/node_modules/
 # Release signing secrets — never commit
 keystore.properties
 *.jks
+*.jks.*
 *.keystore
+*.bak
+upload-keystore.jks*
 
 # Built distributable APKs
 dist/
