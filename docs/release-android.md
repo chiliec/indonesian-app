@@ -45,9 +45,8 @@ Both `keystore.properties` and `*.jks` / `*.keystore` / `*.bak` are in `.gitigno
 ### The real upload key is in place
 
 The active upload key is **`lancar-release.jks`** (alias `lancar`, valid to 2053,
-SHA-256 `C1:17:F4:9B:…:2F:22`), referenced by `keystore.properties`. It replaced the
-original throwaway placeholder (`upload-keystore.jks`, alias `upload`, password
-`lancar-placeholder`), which has been removed from the repo.
+SHA-256 `C1:17:F4:9B:…:2F:22`), referenced by `keystore.properties`. It replaced an
+early throwaway placeholder key, which has been removed from the repo.
 
 > Confirm this key's SHA-256 matches **Play Console → App integrity → Upload key
 > certificate**. If Play shows a different fingerprint, the wrong key was enrolled —
