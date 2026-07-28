@@ -5,13 +5,14 @@ runbook; store copy (shared with Android) lives in
 [`store-listing.md`](store-listing.md). The Android counterpart is
 [`release-android.md`](release-android.md).
 
-> Status (2026-07-28): the Xcode project is **upload-ready** — bundle id, version
-> `1.0.2`/build `1`, usage strings, UIKit scene lifecycle, signing Team
-> `7JF6XQC536`, `ITSAppUsesNonExemptEncryption`, and a bundled
-> `PrivacyInfo.xcprivacy` (§4) are all in place, plus `ExportOptions.plist` (§6) and
-> a live privacy-policy URL (§8), and 6.9" screenshots (§7). The App Store Connect
-> record exists (App ID `6795209576`). The **only remaining gate is the account-bound
-> archive/upload**: archive in Xcode and upload to TestFlight.
+> Status (2026-07-28): **SHIPPED to TestFlight.** Build 1 of `1.0.2` was archived
+> and uploaded by CI (§10) and is **VALID** in App Store Connect (App ID
+> `6795209576`, Team `7JF6XQC536`) — the privacy-manifest validator passed. All
+> prep (usage strings, UIKit scene lifecycle, `ITSAppUsesNonExemptEncryption`,
+> bundled `PrivacyInfo.xcprivacy` §4, `ExportOptions.plist` §6, live privacy-policy
+> URL §8, 6.9" screenshots §7) is in place. **Releases are now automated** — push a
+> `v*` tag to ship a build (§10). The only manual step left is a one-time
+> **internal-tester assignment** in the App Store Connect TestFlight UI.
 
 > **iOS has no free sideload.** Unlike Android — where a signed `.apk` installs
 > directly (see `release-android.md`) — there is **no way to hand an iPhone user a
@@ -264,7 +265,7 @@ Same posture as Android — fully offline, collects nothing:
 - [x] Privacy-policy URL live (§8)
 - [x] Export-compliance answer set — `ITSAppUsesNonExemptEncryption=false` in `Info.plist`
 - [x] `ExportOptions.plist` present for CLI upload (§6): `iosApp/ExportOptions.plist`
-- [ ] `Product → Archive` succeeds and validates in the Organizer
+- [x] Archive + upload succeeds — done via CI (§10); build 1 is **VALID** in TestFlight
 
 ---
 
@@ -312,14 +313,24 @@ Procedure:
 `bundle exec fastlane ios beta` runs on your Mac (uses the login-keychain cert
 and a git-ignored `AuthKey_*.p8` in the repo root) without pushing a tag.
 
-### First upload
+### Gotcha: `Gemfile.lock` is intentionally **not** committed
 
-Lancar has never been uploaded. CI does the first upload (build number starts at
-1). Two one-time, human-only follow-ups after the first run:
-- Apple's privacy-manifest validator may email about `PrivacyInfo.xcprivacy`
-  required-reason entries (§4) — adjust, re-tag, re-run.
-- Assign internal testers in App Store Connect → TestFlight. Export compliance is
-  already handled by `ITSAppUsesNonExemptEncryption=false`.
+`Gemfile.lock` is git-ignored. It is resolved fresh by CI under the runner's
+Ruby 3.3 (`ruby/setup-ruby`). A lock committed from a machine with an older Ruby
+pins gem versions (and a Bundler version) incompatible with Ruby 3.3 — e.g.
+Bundler `1.17.2` calls the removed `String#untaint`, and `CFPropertyList 3.0.9`
+caps at Ruby `< 3.2` — which then fails CI's deployment-mode install. Leaving the
+lock out lets CI resolve a compatible set each run; `fastlane` stays bounded by
+`~> 2.227` in the `Gemfile`.
+
+### First upload — DONE
+
+CI did the first upload: **build 1 of `1.0.2` is VALID** in TestFlight. The
+privacy-manifest validator passed (no `PrivacyInfo.xcprivacy` changes needed) and
+export compliance is handled by `ITSAppUsesNonExemptEncryption=false`. The one
+remaining manual step: **assign internal testers** in App Store Connect →
+TestFlight so the build becomes installable (one-time; new builds then flow to
+them automatically).
 
 ---
 
@@ -334,11 +345,12 @@ Pro Max sim under `docs/store-assets/ios/` (Beranda w/ 🔥 banner, Kartu picker
 front, card back, Progres w/ Leitner boxes, LISTEN drill). Driven via `idb`
 (`~/Library/Python/3.9/bin/idb`) + a seeded realistic review state in the sim DB.
 
+**Done (CI + first upload, 2026-07-28):** automated TestFlight CI added (§10) —
+GitHub Actions `macos-15` + fastlane, tag-triggered. First upload succeeded:
+build 1 of `1.0.2` is **VALID** in TestFlight. Validator passed, so
+`PrivacyInfo.xcprivacy` needed no changes, and the archive/bundling was confirmed
+end-to-end by the successful `gym` build + upload.
+
 **Still open:**
-- **Archive + upload** — App Store Connect record exists (App ID `6795209576`);
-  archive in Xcode + upload to TestFlight (§5–6).
-- **`PrivacyInfo.xcprivacy` required-reason list** — finalize against the first
-  upload's validator feedback (§4); bump `CURRENT_PROJECT_VERSION` per re-upload.
-- **Bundling verification** — a full simulator/device build confirming
-  `PrivacyInfo.xcprivacy` lands in the `.app` was not run in the prep session (the
-  pbxproj wiring parses cleanly); the first `Product → Archive` covers it.
+- **Assign internal testers** in the App Store Connect TestFlight UI (one-time).
+- **External testing / App Store submission** — when ready, promote past internal.
