@@ -441,30 +441,48 @@ bundle exec fastlane ios release
 > `+<country> <number>` form. Hence the `review_information/` files (incl. the phone)
 > are mandatory for this lane, not optional. The "No data" line itself is benign.
 
-### Submission gates beyond the listing (App Privacy, age rating)
+### Submission gates beyond the listing
 
-Apple requires two questionnaires completed before *any* submission. Findings from
-the 2026-07-28 automation pass:
+Apple surfaces several gates only at submit time (`fastlane ios submit` returns them
+as "appStoreVersions ... is not in valid state"). Findings + automation from the
+2026-07-28 pass:
 
 - **Age rating → 4+ — AUTOMATED.** `scripts/asc_age_rating.rb` sets the age-rating
   declaration (all content `NONE`, all booleans `false`) via the public Connect API
   (`AppInfo → AgeRatingDeclaration`, ASC API 1.3+ — it moved off `AppStoreVersion`).
-  Run with the ASC env vars (see §12 creds). Idempotent; confirmed `FOUR_PLUS`.
-- **App Privacy → No data collected — WEB UI ONLY.** There is **no reachable API**
-  for the privacy nutrition labels with our App Store Connect API key: the app
-  resource exposes **no** `appDataUsages`/data-usage relationship (enumerated
-  directly), and every `appDataUsages*` path 404s / "resource does not exist" on
-  both the public and Iris APIs. spaceship's `AppDataUsage*` helpers target removed
-  endpoints; upgrading fastlane does **not** fix it (and Ruby 2.6 here caps fastlane
-  at 2.231.1 anyway). **Do it in the browser:** App Store Connect → Lancar →
+  Idempotent; confirmed `FOUR_PLUS`.
+- **Content Rights → no third-party content — AUTOMATED.** One-off PATCH
+  `v1/apps/<id>` with `contentRightsDeclaration = DOES_NOT_USE_THIRD_PARTY_CONTENT`.
+- **iPad Pro 12.9" screenshots — CAPTURED.** The app is universal
+  (`TARGETED_DEVICE_FAMILY = "1,2"`), so Apple requires 2048×2732 iPad shots on top
+  of the iPhone set. Captured on an `iPad Pro (12.9-inch) (6th gen)` sim
+  (iOS 26.4 runtime) driven by `.claude/skills/run-lancar/driver.py` + a seeded DB
+  (`scripts/gen_seed_sql.rb` → 983 mastered, 32 due today; sqlite3 into the sim
+  container's `lancar.db`, then relaunch). Stored in `docs/store-assets/ios-ipad/`;
+  the `release` lane stages them (prefixed `ipad-`) and deliver classifies by pixel
+  size. Gotcha: the app pre-requests **Speech Recognition** at launch — a system
+  alert simctl can't pre-grant (no such privacy service); tap **Allow** via idb once
+  and it stops prompting.
+- **Pricing → Free — WEB UI.** Set in App Store Connect → Pricing and Availability.
+  No safe API (appPriceSchedule needs a territory + free price-point graph; not worth
+  mis-pricing a live app). Confirmed set (manualPrices: 1, base USA).
+- **App Privacy → No data collected — WEB UI ONLY.** No reachable API for the privacy
+  nutrition labels with our key (app resource exposes no data-usage relationship;
+  all `appDataUsages*` paths 404 on public + Iris; spaceship targets removed
+  endpoints; Ruby 2.6 caps fastlane at 2.231.1). **Browser:** ASC → Lancar →
   **App Privacy** → *Data Collection* → **No, we do not collect data** → **Publish**.
+  ⚠️ The **Publish** button is separate from answering — an un-published draft still
+  fails submit with "You must have published answers to your app's data usages."
 
-`scripts/asc_state.rb` prints current version/build/age-rating/privacy state (read-only).
+`scripts/asc_state.rb` prints version/build/age-rating state (read-only).
 
-Then, the final submit (after App Privacy is published in the browser):
-- The 1.0.5 version → **Build** → select build `1.0.5 (n)`, then **Add for Review →
-  Submit** — or automate via the lane with `submit_for_review: true` (deliver handles
-  build selection + submission once the two gates above are satisfied).
+### Final submit — `fastlane ios submit`
+
+Once App Privacy + Pricing are set in the browser (everything else is automated),
+run the `submit` lane (§10 creds): it selects the latest build (1.0.5 (4)) and
+submits for review. As of end-of-session 2026-07-28 the submit is **blocked only on
+App Privacy being published** — build selection succeeds; re-run `fastlane ios
+submit` after publishing.
 
 ---
 
@@ -504,9 +522,18 @@ internal testing group in App Store Connect (§11) — now installable via TestF
 support/marketing landing page `docs/index.html` (GitHub Pages) for the listing's
 support + marketing URLs. **Ran the lane** — the 1.0.5 listing is populated in ASC.
 
-**Still open:**
-- **Manual ASC forms + submit** — App Privacy (No data collected), age rating (4+),
-  pick build `1.0.5 (n)`, then **Submit for Review** (§12). The lane can automate the
-  submit later via `submit_for_review: true`.
+**Done (submission automation, 2026-07-28 evening):** added the `submit` lane (§10),
+automated age rating (4+) + content rights via ASC API (`scripts/asc_age_rating.rb`),
+captured + uploaded iPad Pro 12.9" screenshots (`docs/store-assets/ios-ipad/`,
+`scripts/gen_seed_sql.rb` seed), and cleared the metadata/screenshot/pricing gates.
+Ran `fastlane ios submit`: build 1.0.5 (4) selects successfully.
+
+**Still open (ONE step to ship):**
+- **Publish App Privacy in the browser**, then run `bundle exec fastlane ios submit`.
+  This is the *only* remaining blocker — submit currently fails with "You must have
+  published answers to your app's data usages" because the App Privacy questionnaire
+  isn't Published yet (answering ≠ publishing; there's a separate Publish button).
+  Everything else (age rating, content rights, pricing, listing, screenshots incl.
+  iPad, review contact, build 4 VALID) is done. See §12 "Submission gates".
 - **External testing** — optional wider beta; needs a one-time light Beta App Review
   + Test Information (§11 "Going wider").
