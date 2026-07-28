@@ -71,4 +71,29 @@ class CardDeckViewModelTest {
         vm.playAudio("abc.m4a")
         assertEquals(listOf("abc.m4a"), audio.played)
     }
+
+    @Test fun onCardShownPlaysWhenAutoPlayOnAndAudioPresent() {
+        val audio = RecordingAudio()
+        val vm = CardDeckViewModel(module(FakeDeckContent(), audio), M,
+            dispatcher = Dispatchers.Unconfined) // autoPlay defaults on
+        vm.onCardShown("c1.m4a")
+        assertEquals(listOf("c1.m4a"), audio.played)
+    }
+
+    @Test fun onCardShownSilentWhenAudioNull() {
+        val audio = RecordingAudio()
+        val vm = CardDeckViewModel(module(FakeDeckContent(), audio), M,
+            dispatcher = Dispatchers.Unconfined)
+        vm.onCardShown(null)
+        assertTrue(audio.played.isEmpty())
+    }
+
+    @Test fun onCardShownSilentWhenAutoPlayOff() {
+        val audio = RecordingAudio()
+        val mod = module(FakeDeckContent(), audio)
+        mod.settings.setAutoPlayAudio(false)
+        val vm = CardDeckViewModel(mod, M, dispatcher = Dispatchers.Unconfined)
+        vm.onCardShown("c1.m4a")
+        assertTrue(audio.played.isEmpty())
+    }
 }

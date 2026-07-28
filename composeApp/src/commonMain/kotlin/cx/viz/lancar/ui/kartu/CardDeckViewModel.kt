@@ -32,6 +32,7 @@ class CardDeckViewModel(
     val state: StateFlow<CardDeckUiState> = _state.asStateFlow()
 
     private var source: List<Card> = emptyList()
+    private val autoPlay = module.settings.autoPlayAudio()
 
     init {
         scope.launch {
@@ -54,6 +55,12 @@ class CardDeckViewModel(
 
     fun playAudio(fileName: String) {
         scope.launch { module.audio.play(fileName) }
+    }
+
+    fun onCardShown(fileName: String?) {
+        if (autoPlay && fileName != null) {
+            scope.launch { module.audio.play(fileName) }
+        }
     }
 
     fun speak(text: String) {

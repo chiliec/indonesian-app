@@ -51,6 +51,9 @@ fun CardDeckScreen(appModule: AppModule, moduleId: String, onBack: () -> Unit) {
         }
 
         val pager = rememberPagerState(pageCount = { state.cards.size })
+        LaunchedEffect(pager.settledPage) {
+            vm.onCardShown(state.cards.getOrNull(pager.settledPage)?.audio)
+        }
 
         // ── header: close · counter · shuffle ──
         Row(verticalAlignment = Alignment.CenterVertically) {
