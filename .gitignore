@@ -25,3 +25,6 @@ AuthKey_*.p8
 *.mobileprovision
 vendor/bundle/
 .bundle/
+
+# fastlane Gemfile.lock is resolved by CI under its own Ruby (avoids ruby-version pin drift)
+Gemfile.lock
