@@ -5,15 +5,16 @@ runbook; store copy (shared with Android) lives in
 [`store-listing.md`](store-listing.md). The Android counterpart is
 [`release-android.md`](release-android.md).
 
-> Status (2026-07-28): **SHIPPED to TestFlight.** Build 1 of `1.0.2` was archived
-> and uploaded by CI (§10) and is **VALID** in App Store Connect (App ID
-> `6795209576`, Team `7JF6XQC536`) — the privacy-manifest validator passed. All
-> prep (usage strings, UIKit scene lifecycle, `ITSAppUsesNonExemptEncryption`,
-> bundled `PrivacyInfo.xcprivacy` §4, `ExportOptions.plist` §6, live privacy-policy
-> URL §8, 6.9" screenshots §7) is in place. **Releases are now automated** — push a
-> `v*` tag to ship a build (§10). The only manual step left is a one-time
-> **internal-tester assignment** in the App Store Connect TestFlight UI —
-> step-by-step in §11.
+> Status (2026-07-28): **LIVE on TestFlight (internal).** Build 1 of `1.0.2` was
+> archived and uploaded by CI (§10), is **VALID** in App Store Connect (App ID
+> `6795209576`, Team `7JF6XQC536`) — the privacy-manifest validator passed — and is
+> now **assigned to the internal testing group** (§11 done), so it is installable via
+> TestFlight. All prep (usage strings, UIKit scene lifecycle,
+> `ITSAppUsesNonExemptEncryption`, bundled `PrivacyInfo.xcprivacy` §4,
+> `ExportOptions.plist` §6, live privacy-policy URL §8, 6.9" screenshots §7) is in
+> place. **Releases are now automated** — push a `v*` tag to ship a build (§10) and
+> it flows to the internal group automatically. Next optional steps: external testing
+> or App Store submission (§11 "Going wider").
 
 > **iOS has no free sideload.** Unlike Android — where a signed `.apk` installs
 > directly (see `release-android.md`) — there is **no way to hand an iPhone user a
@@ -337,6 +338,10 @@ them automatically).
 
 ## 11. Assign internal testers — App Store Connect (one-time)
 
+> **DONE (2026-07-28):** build 1 of `1.0.2` is assigned to the internal testing
+> group and installable via TestFlight. The steps below are retained as the
+> reference procedure (and for adding more testers later).
+
 Build 1 of `1.0.2` is already **VALID** in TestFlight (App ID `6795209576`, Team
 `7JF6XQC536`). Export compliance is pre-answered via
 `ITSAppUsesNonExemptEncryption=false`, so the build has no "Missing Compliance"
@@ -410,8 +415,11 @@ build 1 of `1.0.2` is **VALID** in TestFlight. Validator passed, so
 `PrivacyInfo.xcprivacy` needed no changes, and the archive/bundling was confirmed
 end-to-end by the successful `gym` build + upload.
 
+**Done (internal testing, 2026-07-28):** build 1 of `1.0.2` assigned to the
+internal testing group in App Store Connect (§11) — now installable via TestFlight.
+
 **Still open:**
-- **Assign internal testers** in the App Store Connect TestFlight UI (one-time) —
-  step-by-step in §11.
 - **External testing / App Store submission** — when ready, promote past internal
-  (§11 "Going wider").
+  (§11 "Going wider"). External needs a one-time light Beta App Review + Test
+  Information; App Store submission needs the store text copied from
+  `store-listing.md` (§9's last unchecked item) + age rating + Submit for Review.
