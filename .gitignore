@@ -34,3 +34,6 @@ Gemfile.lock
 
 # deliver stages screenshots here at runtime from docs/store-assets/ios (single source of truth)
 fastlane/screenshots/
+
+# local ASC API creds for fastlane (dotenv auto-load); .env.example is tracked
+fastlane/.env
