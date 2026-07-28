@@ -441,12 +441,30 @@ bundle exec fastlane ios release
 > `+<country> <number>` form. Hence the `review_information/` files (incl. the phone)
 > are mandatory for this lane, not optional. The "No data" line itself is benign.
 
-Then, in App Store Connect (still manual — not covered by the lane):
-1. **App Privacy** → *No data collected* (matches `PrivacyInfo.xcprivacy`, §8).
-2. **Age rating** → 4+ (educational, no objectionable content).
-3. The 1.0.5 version → **Build** → select build `1.0.5 (n)`.
-4. **Add for Review → Submit**. (To automate the submit later, flip
-   `submit_for_review: true` in the lane.)
+### Submission gates beyond the listing (App Privacy, age rating)
+
+Apple requires two questionnaires completed before *any* submission. Findings from
+the 2026-07-28 automation pass:
+
+- **Age rating → 4+ — AUTOMATED.** `scripts/asc_age_rating.rb` sets the age-rating
+  declaration (all content `NONE`, all booleans `false`) via the public Connect API
+  (`AppInfo → AgeRatingDeclaration`, ASC API 1.3+ — it moved off `AppStoreVersion`).
+  Run with the ASC env vars (see §12 creds). Idempotent; confirmed `FOUR_PLUS`.
+- **App Privacy → No data collected — WEB UI ONLY.** There is **no reachable API**
+  for the privacy nutrition labels with our App Store Connect API key: the app
+  resource exposes **no** `appDataUsages`/data-usage relationship (enumerated
+  directly), and every `appDataUsages*` path 404s / "resource does not exist" on
+  both the public and Iris APIs. spaceship's `AppDataUsage*` helpers target removed
+  endpoints; upgrading fastlane does **not** fix it (and Ruby 2.6 here caps fastlane
+  at 2.231.1 anyway). **Do it in the browser:** App Store Connect → Lancar →
+  **App Privacy** → *Data Collection* → **No, we do not collect data** → **Publish**.
+
+`scripts/asc_state.rb` prints current version/build/age-rating/privacy state (read-only).
+
+Then, the final submit (after App Privacy is published in the browser):
+- The 1.0.5 version → **Build** → select build `1.0.5 (n)`, then **Add for Review →
+  Submit** — or automate via the lane with `submit_for_review: true` (deliver handles
+  build selection + submission once the two gates above are satisfied).
 
 ---
 
