@@ -40,3 +40,7 @@ fastlane/.env
 
 # personal review-contact phone (kept local; other review_information files are tracked)
 fastlane/metadata/review_information/phone_number.txt
+
+# fastlane auto-generated artifacts
+fastlane/report.xml
+fastlane/README.md
