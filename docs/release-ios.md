@@ -5,11 +5,12 @@ runbook; store copy (shared with Android) lives in
 [`store-listing.md`](store-listing.md). The Android counterpart is
 [`release-android.md`](release-android.md).
 
-> Status (2026-07-28): **LIVE on TestFlight (internal).** Build 1 of `1.0.2` was
-> archived and uploaded by CI (§10), is **VALID** in App Store Connect (App ID
-> `6795209576`, Team `7JF6XQC536`) — the privacy-manifest validator passed — and is
-> now **assigned to the internal testing group** (§11 done), so it is installable via
-> TestFlight. All prep (usage strings, UIKit scene lifecycle,
+> Status (2026-07-28): **LIVE on TestFlight (internal).** The internal group was
+> first established with build 1 of `1.0.2`, archived and uploaded by CI (§10), and
+> is **VALID** in App Store Connect (App ID `6795209576`, Team `7JF6XQC536`) — the
+> privacy-manifest validator passed. New builds flow to that group automatically;
+> the current user-facing version is **`1.0.4`** (audio-on-device fix — see release
+> history below). All prep (usage strings, UIKit scene lifecycle,
 > `ITSAppUsesNonExemptEncryption`, bundled `PrivacyInfo.xcprivacy` §4,
 > `ExportOptions.plist` §6, live privacy-policy URL §8, 6.9" screenshots §7) is in
 > place. **Releases are now automated** — push a `v*` tag to ship a build (§10) and
@@ -79,11 +80,13 @@ There is no gitignored secrets file on iOS (unlike Android's `keystore.propertie
 
 Set in the Xcode target build settings (both configs):
 
-- `MARKETING_VERSION` — user-facing version. Currently **`1.0`**. This maps to
-  `CFBundleShortVersionString`. Keep in sync with Android `versionName`.
-- `CURRENT_PROJECT_VERSION` — build number. Currently **`1`**. Maps to
-  `CFBundleVersion`. **Must strictly increase** for every TestFlight/App Store
-  upload of the same `MARKETING_VERSION` (bump to `2`, `3`, … for re-uploads).
+- `MARKETING_VERSION` — user-facing version. Currently **`1.0.4`**. This maps to
+  `CFBundleShortVersionString`. Keep in sync with Android `versionName`. Bump it in
+  Xcode for each new user-facing version before tagging.
+- `CURRENT_PROJECT_VERSION` — build number. Currently **`1`** in the repo, but CI
+  **auto-increments** it from the latest TestFlight build at archive time (§10), so
+  the committed value is just a floor. Maps to `CFBundleVersion`. **Must strictly
+  increase** for every TestFlight/App Store upload.
 
 Both are already wired through `Info.plist` via `$(MARKETING_VERSION)` /
 `$(CURRENT_PROJECT_VERSION)` — edit the build setting, not the plist.
@@ -259,7 +262,7 @@ Same posture as Android — fully offline, collects nothing:
 ## 9. Pre-upload checklist
 
 - [x] Apple Developer membership active; Team `7JF6XQC536` set in `project.pbxproj` (§2)
-- [x] `MARKETING_VERSION 1.0.2` / `CURRENT_PROJECT_VERSION 1` set (bump build for re-uploads)
+- [x] `MARKETING_VERSION 1.0.4` set; `CURRENT_PROJECT_VERSION` auto-incremented by CI (§10)
 - [x] `PrivacyInfo.xcprivacy` present and in Copy Bundle Resources (§4)
 - [x] 1024² marketing icon present in the asset catalog
 - [x] 6.9" screenshots captured under `docs/store-assets/ios/` (§7) — 6 screens @ 1320×2868
@@ -417,6 +420,13 @@ end-to-end by the successful `gym` build + upload.
 
 **Done (internal testing, 2026-07-28):** build 1 of `1.0.2` assigned to the
 internal testing group in App Store Connect (§11) — now installable via TestFlight.
+
+**Release history (tag-triggered CI, §10):**
+- `v1.0.2` — first upload; established the internal testing group.
+- `v1.0.3` — on-device `TextField`-focus crash fix (CMP 1.8.2 → 1.9.3).
+- `v1.0.4` — on-device audio silence fix: activate the shared `AVAudioSession`
+  with the `.playback` category so clips are audible regardless of the hardware
+  mute switch (the sim has no switch, so it never reproduced there).
 
 **Still open:**
 - **External testing / App Store submission** — when ready, promote past internal
