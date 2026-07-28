@@ -4,6 +4,7 @@ import cx.viz.lancar.domain.Card
 import cx.viz.lancar.domain.MasteryCalculator
 import cx.viz.lancar.domain.PronunciationMatcher
 import cx.viz.lancar.domain.Question
+import cx.viz.lancar.domain.QuestionMode
 import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,7 @@ class DrillViewModel(
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
     private val showListenText = module.settings.showListenText()
+    private val autoPlay = module.settings.autoPlayAudio()
     private val _state = MutableStateFlow(DrillUiState(revealText = showListenText))
     val state: StateFlow<DrillUiState> = _state.asStateFlow()
 
@@ -83,6 +85,9 @@ class DrillViewModel(
             correctCount = correctCount, newlyMastered = _state.value.newlyMastered,
             sttAvailable = sttAvailable, revealText = showListenText,
         )
+        if (autoPlay && q.mode == QuestionMode.LISTEN) {
+            q.audio?.let { name -> scope.launch { module.audio.play(name) } }
+        }
     }
 
     fun answer(optionIndex: Int) {

@@ -6,10 +6,12 @@ import cx.viz.lancar.data.ProgressRepository
 import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.db.LancarDatabase
 import cx.viz.lancar.domain.Card
+import cx.viz.lancar.platform.AudioPlayer
 import cx.viz.lancar.platform.NoopAudioPlayer
 import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -18,6 +20,20 @@ private const val TEST_MODULE = "test-module"
 private class FakeContent : ContentRepository() {
     private val cards = (1..12).map { i ->
         Card(id = "c-$i", indonesian = "kata-$i", english = "word-$i", audio = "c-$i.m4a")
+    }
+    override suspend fun cards(moduleId: String): List<Card> =
+        if (moduleId == TEST_MODULE) cards else super.cards(moduleId)
+}
+
+private class RecordingAudio : AudioPlayer {
+    val played = mutableListOf<String>()
+    override suspend fun play(fileName: String) { played += fileName }
+}
+
+// Cards without audio -> QuestionFactory yields TEXT mode (never LISTEN).
+private class FakeNoAudioContent : ContentRepository() {
+    private val cards = (1..12).map { i ->
+        Card(id = "c-$i", indonesian = "kata-$i", english = "word-$i")
     }
     override suspend fun cards(moduleId: String): List<Card> =
         if (moduleId == TEST_MODULE) cards else super.cards(moduleId)
@@ -33,6 +49,21 @@ class DrillViewModelTest {
         return AppModule(FakeContent(), ProgressRepository(db), SettingsRepository(db), NoopAudioPlayer())
     }
 
+    private fun module(content: ContentRepository, audio: AudioPlayer): AppModule {
+        @Suppress("SwallowedException")
+        try { Class.forName("org.sqlite.JDBC") } catch (_: ClassNotFoundException) { }
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        LancarDatabase.Schema.create(driver)
+        val db = LancarDatabase(driver)
+        return AppModule(content, ProgressRepository(db), SettingsRepository(db), audio)
+    }
+
+    // DrillViewModel hops to Dispatchers.Default inside init/emitQuestion, so emission
+    // is async even under Unconfined. Poll with a bounded wait.
+    private fun waitFor(cond: () -> Boolean) {
+        repeat(200) { if (cond()) return; Thread.sleep(10) }
+    }
+
     @Test fun seedsRevealTextFromSettings() {
         val m = module()
         m.settings.setShowListenText(true)
@@ -46,5 +77,33 @@ class DrillViewModelTest {
         assertFalse(vm.state.value.revealText)
         vm.revealWord()
         assertTrue(vm.state.value.revealText)
+    }
+
+    @Test fun autoPlayPlaysListenQuestionWhenOn() {
+        val audio = RecordingAudio()
+        val m = module(FakeContent(), audio) // autoPlay defaults on; cards have audio -> LISTEN
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { audio.played.isNotEmpty() }
+        assertEquals(listOf("c-1.m4a"), audio.played)
+        vm.dispose()
+    }
+
+    @Test fun autoPlaySilentWhenOff() {
+        val audio = RecordingAudio()
+        val m = module(FakeContent(), audio)
+        m.settings.setAutoPlayAudio(false)
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null } // wait until first question emitted
+        assertTrue(audio.played.isEmpty())
+        vm.dispose()
+    }
+
+    @Test fun autoPlaySkipsNonListenQuestion() {
+        val audio = RecordingAudio()
+        val m = module(FakeNoAudioContent(), audio) // TEXT mode, autoPlay on
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        assertTrue(audio.played.isEmpty())
+        vm.dispose()
     }
 }
