@@ -37,3 +37,6 @@ fastlane/screenshots/
 
 # local ASC API creds for fastlane (dotenv auto-load); .env.example is tracked
 fastlane/.env
+
+# personal review-contact phone (kept local; other review_information files are tracked)
+fastlane/metadata/review_information/phone_number.txt

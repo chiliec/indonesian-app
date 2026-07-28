@@ -1,0 +1,1 @@
+Lancar is a fully offline Indonesian vocabulary trainer. No account or login is required — launch the app and start learning. All content and audio are bundled; the app makes no network connections at runtime. No demo credentials needed.
