@@ -5,7 +5,9 @@ runbook; store copy (shared with Android) lives in
 [`store-listing.md`](store-listing.md). The Android counterpart is
 [`release-android.md`](release-android.md).
 
-> Status (2026-07-28): **LIVE on TestFlight (internal).** The internal group was
+> Status (2026-07-28): **App Store submission 1.0.5 is `WAITING_FOR_REVIEW`**
+> (App ID `6795209576`, build 4) — awaiting Apple review, then a manual Release
+> (`automatic_release: false`). Also **LIVE on TestFlight (internal).** The internal group was
 > first established with build 1 of `1.0.2`, archived and uploaded by CI (§10), and
 > is **VALID** in App Store Connect (App ID `6795209576`, Team `7JF6XQC536`) — the
 > privacy-manifest validator passed. New builds flow to that group automatically;
@@ -528,12 +530,17 @@ captured + uploaded iPad Pro 12.9" screenshots (`docs/store-assets/ios-ipad/`,
 `scripts/gen_seed_sql.rb` seed), and cleared the metadata/screenshot/pricing gates.
 Ran `fastlane ios submit`: build 1.0.5 (4) selects successfully.
 
-**Still open (ONE step to ship):**
-- **Publish App Privacy in the browser**, then run `bundle exec fastlane ios submit`.
-  This is the *only* remaining blocker — submit currently fails with "You must have
-  published answers to your app's data usages" because the App Privacy questionnaire
-  isn't Published yet (answering ≠ publishing; there's a separate Publish button).
-  Everything else (age rating, content rights, pricing, listing, screenshots incl.
-  iPad, review contact, build 4 VALID) is done. See §12 "Submission gates".
+**SUBMITTED (2026-07-28):** `1.0.5` build 4 is **`WAITING_FOR_REVIEW`**. The last
+gate — publishing App Privacy in the browser (answering ≠ publishing; separate
+Publish button) — was cleared, then `bundle exec fastlane ios submit` went through.
+Note it took *two* attempts: the first failed with "You must have published answers
+to your app's data usages" because the Publish hadn't fully registered; re-publishing
+in ASC fixed it. `automatic_release: false`, so after approval **click Release
+manually** in App Store Connect.
+
+**Still open / next:**
+- **Apple review** (~24–48h) → on approval, **manually Release** in ASC (or flip
+  `automatic_release` in the `submit` lane for future versions). If rejected, pull the
+  Resolution Center note.
 - **External testing** — optional wider beta; needs a one-time light Beta App Review
   + Test Information (§11 "Going wider").
