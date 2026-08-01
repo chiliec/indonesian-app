@@ -3,9 +3,13 @@
 How to cut a Google Play release of Lancar. This is the **Android** runbook;
 store copy (shared with iOS) lives in [`store-listing.md`](store-listing.md).
 
-> Status: release **infra is wired and dry-run-validated** (signed AAB builds and
-> verifies locally; store assets generated). Not yet published — the remaining
+> Status: **Google Play — not published.** Release infra is wired and dry-run-validated
+> (signed AAB builds and verifies locally; store assets generated), but the remaining
 > steps need a Google Play Console account, which does not exist yet.
+>
+> **Android ships today via GitHub Releases** — latest is
+> [Lancar 1.0.5](https://github.com/chiliec/indonesian-app/releases/tag/v1.0.5)
+> (universal APK, `versionCode 4`). See "Distribution today" below.
 
 ---
 
@@ -62,10 +66,55 @@ manager + offsite). Losing the upload key means filing a Play upload-key reset.
 Set in `composeApp/build.gradle.kts` `defaultConfig`:
 
 - `versionCode` — integer, **must strictly increase** with every uploaded build.
-  Currently `1`. Bump by 1 each upload (even for re-uploads to the same track).
-- `versionName` — human string shown to users. Currently `"1.0"`.
+  Currently `4`. Bump by 1 each upload (even for re-uploads to the same track).
+- `versionName` — human string shown to users. Currently `"1.0.5"`.
 
 Keep `versionName` in sync with the iOS `MARKETING_VERSION` when releasing both.
+
+> **Gotcha — the two platforms drift.** iOS ships from CI on a `vX.Y.Z` tag, which
+> only bumps `MARKETING_VERSION` in the Xcode project; **nothing touches
+> `build.gradle.kts`**. 1.0.3 and 1.0.4 shipped to TestFlight while Android sat at
+> `versionCode = 3 / "1.0.2"`. Before cutting any Android build, check these two
+> fields against the tag you think you're shipping — a same-`versionCode` APK still
+> installs, it just lies about its version in Settings → Apps.
+
+---
+
+## Distribution today — GitHub Releases
+
+Until Play exists, Android users install a **universal APK** attached to a GitHub
+Release on the public repo. There is **no CI for this** (`.github/workflows/` has only
+`ios-testflight.yml`) — it is a manual, local procedure:
+
+```bash
+# 1. Bump versionCode / versionName in composeApp/build.gradle.kts, commit, push.
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+./gradlew :composeApp:assembleRelease          # ~7 min
+
+# 2. Sanity-check the artifact before publishing.
+BT=/opt/homebrew/share/android-commandlinetools/build-tools/35.0.0
+$BT/aapt2 dump badging composeApp/build/outputs/apk/release/composeApp-release.apk | head -1
+$BT/apksigner verify --print-certs composeApp/build/outputs/apk/release/composeApp-release.apk
+
+# 3. Publish (APK name must carry the version — it's the user-facing download).
+cp composeApp/build/outputs/apk/release/composeApp-release.apk lancar-1.0.5.apk
+gh release create v1.0.5 lancar-1.0.5.apk --title "Lancar 1.0.5" --notes-file notes.md
+```
+
+- **Signing cert must match previous releases** or the update fails to install over an
+  existing copy. The shipped key is SHA-256 `c117f49b4cb2c79b7b32ac29dd149902eb8efb6142ad45367841250c58172f22`
+  (`CN=Lancar, O=viz.cx`); `apksigner verify --print-certs` on the previous release's
+  APK is the check.
+- `*.apk` is gitignored, so staging `lancar-<version>.apk` in the repo root is safe.
+- **Release-note scope is Android-only.** iOS-only fixes (e.g. 1.0.3's CMP text-input
+  crash, 1.0.4's AVAudioSession) mean tag numbers skip on this channel — say so in the
+  notes rather than cutting an empty Android release. Model the body on
+  [1.0.2](https://github.com/chiliec/indonesian-app/releases/tag/v1.0.2): what changed,
+  in-place-update note, numbered install steps, `minSdk` + `versionCode` footer.
+- The `vX.Y.Z` tag is created by the iOS release flow and points at the
+  `MARKETING_VERSION` bump, so the APK is typically built from a commit or two *after*
+  the tag. `gh release create` reuses the existing tag; don't force-move it — the
+  shipped TestFlight build references it.
 
 ---
 
