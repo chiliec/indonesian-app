@@ -1,10 +1,10 @@
 package cx.viz.lancar.ui.drill
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -132,7 +132,7 @@ fun QuizView(
             visible = state.answered,
             modifier = Modifier.align(Alignment.BottomCenter),
             enter = slideInVertically { it } + fadeIn(),
-            exit = fadeOut(),
+            exit = ExitTransition.None,
         ) {
             FeedbackSheet(
                 correct = state.selected == q.correctIndex,

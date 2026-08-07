@@ -75,5 +75,11 @@ class QuizCheckFlowTest {
         onNodeWithText("Periksa · Check").performScrollTo().performClick()
         mainClock.advanceTimeBy(1_000)
         onNodeWithText("Lanjut · Continue").assertExists()
+
+        // Advancing to the next question drops the sheet immediately and resets to the
+        // pre-answer state — regression guard for the fadeOut answer-leak bug.
+        onNodeWithText("Lanjut · Continue").performClick()
+        mainClock.advanceTimeBy(1_000)
+        onNodeWithText("Periksa · Check").assertExists()
     }
 }
