@@ -8,9 +8,12 @@ import cx.viz.lancar.domain.QuestionMode
 import cx.viz.lancar.ui.AppModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 const val SESSION_SIZE = 12
+const val SLOW_RATE = 0.6f
 
 data class DrillUiState(
     val index: Int = 0,
@@ -32,6 +36,7 @@ data class DrillUiState(
     val listening: Boolean = false,
     val speechHint: String? = null,
     val revealText: Boolean = false,
+    val playing: Boolean = false,
 )
 
 class DrillViewModel(
@@ -49,6 +54,7 @@ class DrillViewModel(
     private lateinit var pool: List<Card>
     private lateinit var queue: List<Card>
     private var sttAvailable = false
+    private var playJob: Job? = null
 
     init {
         scope.launch {
@@ -86,26 +92,38 @@ class DrillViewModel(
             sttAvailable = sttAvailable, revealText = showListenText,
         )
         if (autoPlay && q.mode == QuestionMode.LISTEN) {
-            q.audio?.let { name -> scope.launch { module.audio.play(name) } }
+            playAudio()
         }
     }
 
-    fun answer(optionIndex: Int) {
+    fun select(optionIndex: Int) {
+        val s = _state.value
+        if (s.question == null || s.answered) return
+        _state.value = s.copy(selected = optionIndex)
+    }
+
+    fun check() {
         val s = _state.value
         val q = s.question ?: return
+        val sel = s.selected ?: return
         if (s.answered) return
-        val correct = optionIndex == q.correctIndex
+        val correct = sel == q.correctIndex
         val wasMastered = MasteryCalculator.isMastered(
             module.progress.forCards(listOf(q.card.id))[q.card.id]
         )
         module.progress.recordAnswer(q.card.id, correct)
         val nowMastered = correct && !wasMastered
         _state.value = s.copy(
-            selected = optionIndex,
             answered = true,
             correctCount = s.correctCount + if (correct) 1 else 0,
             newlyMastered = s.newlyMastered + if (nowMastered) 1 else 0,
         )
+    }
+
+    /** One-step answer, used by the STT path where recognition already committed the choice. */
+    fun answer(optionIndex: Int) {
+        select(optionIndex)
+        check()
     }
 
     fun onSpeak() {
@@ -135,13 +153,25 @@ class DrillViewModel(
         }
     }
 
-    fun playAudio() {
-        val name = _state.value.question?.audio ?: return
-        scope.launch { module.audio.play(name) }
+    fun toggleWord() {
+        _state.value = _state.value.copy(revealText = !_state.value.revealText)
     }
 
-    fun revealWord() {
-        _state.value = _state.value.copy(revealText = true)
+    fun playAudio(slow: Boolean = false) {
+        val name = _state.value.question?.audio ?: return
+        playJob?.cancel()
+        playJob = scope.launch {
+            _state.value = _state.value.copy(playing = true)
+            val ms = try {
+                module.audio.play(name, if (slow) SLOW_RATE else 1f)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                0L // a missing/corrupt clip must not leave the equalizer spinning
+            }
+            delay(ms)
+            _state.value = _state.value.copy(playing = false)
+        }
     }
 
     fun dispose() { scope.cancel() }

@@ -78,8 +78,93 @@ class DrillViewModelTest {
         val m = module() // setting defaults false
         val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
         assertFalse(vm.state.value.revealText)
-        vm.revealWord()
+        vm.toggleWord()
         assertTrue(vm.state.value.revealText)
+    }
+
+    @Test fun selectRecordsNothing() {
+        val m = module()
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        val cardId = vm.state.value.question!!.card.id
+        vm.select(0)
+        assertEquals(0, vm.state.value.selected)
+        assertFalse(vm.state.value.answered)
+        assertTrue(m.progress.forCards(listOf(cardId)).isEmpty())
+        vm.dispose()
+    }
+
+    @Test fun reselectingOverwritesSelection() {
+        val m = module()
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        vm.select(0)
+        vm.select(2)
+        assertEquals(2, vm.state.value.selected)
+        assertFalse(vm.state.value.answered)
+        vm.dispose()
+    }
+
+    @Test fun checkCommitsOnceAndIsIdempotent() {
+        val m = module()
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        val q = vm.state.value.question!!
+        vm.select(q.correctIndex)
+        vm.check()
+        vm.check() // second call must be a no-op
+        val s = vm.state.value
+        assertTrue(s.answered)
+        assertEquals(1, s.correctCount)
+        assertEquals(1, m.progress.forCards(listOf(q.card.id))[q.card.id]!!.correct)
+        vm.dispose()
+    }
+
+    @Test fun checkWithoutSelectionDoesNothing() {
+        val m = module()
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        val cardId = vm.state.value.question!!.card.id
+        vm.check()
+        assertFalse(vm.state.value.answered)
+        assertTrue(m.progress.forCards(listOf(cardId)).isEmpty())
+        vm.dispose()
+    }
+
+    @Test fun toggleWordFlipsBothWays() {
+        val m = module() // showListenText defaults false
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        assertFalse(vm.state.value.revealText)
+        vm.toggleWord()
+        assertTrue(vm.state.value.revealText)
+        vm.toggleWord()
+        assertFalse(vm.state.value.revealText)
+        vm.dispose()
+    }
+
+    @Test fun slowPlaybackUsesReducedRate() {
+        val audio = RecordingAudio()
+        val m = module(FakeContent(), audio)
+        m.settings.setAutoPlayAudio(false) // keep the recording clean
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        vm.playAudio(slow = true)
+        waitFor { audio.played.isNotEmpty() }
+        assertEquals(listOf("c-1.m4a" to SLOW_RATE), audio.played)
+        vm.dispose()
+    }
+
+    @Test fun normalPlaybackUsesFullRate() {
+        val audio = RecordingAudio()
+        val m = module(FakeContent(), audio)
+        m.settings.setAutoPlayAudio(false)
+        val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
+        waitFor { vm.state.value.question != null }
+        vm.playAudio()
+        waitFor { audio.played.isNotEmpty() }
+        assertEquals(listOf("c-1.m4a" to 1f), audio.played)
+        assertFalse(vm.state.value.playing) // fake returns duration 0 -> clears immediately
+        vm.dispose()
     }
 
     @Test fun autoPlayPlaysListenQuestionWhenOn() {
