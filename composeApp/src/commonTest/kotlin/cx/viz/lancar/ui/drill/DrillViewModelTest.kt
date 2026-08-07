@@ -26,8 +26,11 @@ private class FakeContent : ContentRepository() {
 }
 
 private class RecordingAudio : AudioPlayer {
-    val played = mutableListOf<String>()
-    override suspend fun play(fileName: String) { played += fileName }
+    val played = mutableListOf<Pair<String, Float>>()
+    override suspend fun play(fileName: String, rate: Float): Long {
+        played += fileName to rate
+        return 0
+    }
 }
 
 // Cards without audio -> QuestionFactory yields TEXT mode (never LISTEN).
@@ -84,7 +87,7 @@ class DrillViewModelTest {
         val m = module(FakeContent(), audio) // autoPlay defaults on; cards have audio -> LISTEN
         val vm = DrillViewModel(m, TEST_MODULE, dispatcher = Dispatchers.Unconfined)
         waitFor { audio.played.isNotEmpty() }
-        assertEquals(listOf("c-1.m4a"), audio.played)
+        assertEquals(listOf("c-1.m4a" to 1f), audio.played)
         vm.dispose()
     }
 

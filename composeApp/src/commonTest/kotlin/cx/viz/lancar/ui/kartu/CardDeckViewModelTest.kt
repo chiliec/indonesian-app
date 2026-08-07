@@ -24,8 +24,11 @@ private class FakeDeckContent : ContentRepository() {
 }
 
 private class RecordingAudio : AudioPlayer {
-    val played = mutableListOf<String>()
-    override suspend fun play(fileName: String) { played += fileName }
+    val played = mutableListOf<Pair<String, Float>>()
+    override suspend fun play(fileName: String, rate: Float): Long {
+        played += fileName to rate
+        return 0
+    }
 }
 
 class CardDeckViewModelTest {
@@ -69,7 +72,7 @@ class CardDeckViewModelTest {
         val vm = CardDeckViewModel(module(FakeDeckContent(), audio), M,
             dispatcher = Dispatchers.Unconfined)
         vm.playAudio("abc.m4a")
-        assertEquals(listOf("abc.m4a"), audio.played)
+        assertEquals(listOf("abc.m4a" to 1f), audio.played)
     }
 
     @Test fun onCardShownPlaysWhenAutoPlayOnAndAudioPresent() {
@@ -77,7 +80,7 @@ class CardDeckViewModelTest {
         val vm = CardDeckViewModel(module(FakeDeckContent(), audio), M,
             dispatcher = Dispatchers.Unconfined) // autoPlay defaults on
         vm.onCardShown("c1.m4a")
-        assertEquals(listOf("c1.m4a"), audio.played)
+        assertEquals(listOf("c1.m4a" to 1f), audio.played)
     }
 
     @Test fun onCardShownSilentWhenAudioNull() {

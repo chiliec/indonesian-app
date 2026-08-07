@@ -40,8 +40,11 @@ private class FakeReviewContent : ContentRepository() {
 }
 
 private class RecordingAudio : AudioPlayer {
-    val played = mutableListOf<String>()
-    override suspend fun play(fileName: String) { played += fileName }
+    val played = mutableListOf<Pair<String, Float>>()
+    override suspend fun play(fileName: String, rate: Float): Long {
+        played += fileName to rate
+        return 0
+    }
 }
 
 // Deterministic RNG that always forces LISTEN mode in QuestionFactory:
@@ -138,7 +141,7 @@ class ReviewViewModelTest {
         module.progress.recordAnswer("a", correct = true)
         day = 100L
         val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
-        assertEquals(listOf("a.m4a"), audio.played) // LISTEN guaranteed by listenRng
+        assertEquals(listOf("a.m4a" to 1f), audio.played) // LISTEN guaranteed by listenRng
     }
 
     @Test fun autoPlaySilentWhenOff() {

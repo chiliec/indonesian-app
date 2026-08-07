@@ -22,17 +22,21 @@ class IosAudioPlayer : AudioPlayer {
     private val mutex = Mutex()
     private var sessionConfigured = false
 
-    override suspend fun play(fileName: String) = withContext(Dispatchers.Default) {
+    override suspend fun play(fileName: String, rate: Float): Long = withContext(Dispatchers.Default) {
         mutex.withLock {
             configureSessionOnce()
             val bytes = Res.readBytes("files/audio/$fileName")
             val data = bytes.usePinned { pinned ->
                 NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
             }
-            player = AVAudioPlayer(data = data, error = null)
-            if (player == null) return@withLock
-            player?.prepareToPlay()
-            player?.play()
+            val p = AVAudioPlayer(data = data, error = null) ?: return@withLock 0L
+            player = p
+            // enableRate must be set before prepareToPlay(), or rate is ignored.
+            p.enableRate = true
+            p.prepareToPlay()
+            p.setRate(rate)
+            p.play()
+            (p.duration * 1000 / rate).toLong()
         }
     }
 
