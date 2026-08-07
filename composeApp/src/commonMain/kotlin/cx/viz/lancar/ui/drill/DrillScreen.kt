@@ -25,11 +25,12 @@ fun DrillScreen(
 
     QuizView(
         state = state,
-        onAnswer = { vm.answer(it) },
+        onSelect = { vm.select(it) },
+        onCheck = { vm.check() },
         onNext = { vm.next() },
-        onPlayAudio = { vm.playAudio() },
+        onPlayAudio = { slow -> vm.playAudio(slow) },
         onBack = onBack,
         onSpeak = { vm.onSpeak() },
-        onRevealWord = { vm.toggleWord() },
+        onToggleWord = { vm.toggleWord() },
     )
 }

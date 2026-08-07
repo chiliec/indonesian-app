@@ -53,9 +53,9 @@ class DrillRevealTest {
             )
         }
         mainClock.advanceTimeBy(5_000)
-        // On a LISTEN question the word is hidden; the reveal link is shown.
-        onNodeWithText("Terlalu berisik? Lihat kata · Too loud? Show word").assertExists()
-        onNodeWithText("Terlalu berisik? Lihat kata · Too loud? Show word").performClick()
+        // On a LISTEN question the word is hidden; the reveal chip is shown.
+        onNodeWithText("Lihat kata · Show word").assertExists()
+        onNodeWithText("Lihat kata · Show word").performClick()
         // After tapping, the first card's Indonesian text is revealed.
         onNodeWithText("kata-1").assertExists()
     }

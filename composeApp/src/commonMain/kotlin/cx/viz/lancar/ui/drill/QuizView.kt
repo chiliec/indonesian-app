@@ -1,35 +1,49 @@
 package cx.viz.lancar.ui.drill
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cx.viz.lancar.domain.QuestionMode
+import cx.viz.lancar.ui.drill.quiz.AudioPanel
+import cx.viz.lancar.ui.drill.quiz.FeedbackSheet
+import cx.viz.lancar.ui.drill.quiz.OptState
+import cx.viz.lancar.ui.drill.quiz.OptionRow
 import cx.viz.lancar.ui.theme.*
+
+private const val OPTION_KEYS = "ABCD"
 
 /** Stateless quiz UI shared by drill and review. All state + actions are passed in. */
 @Composable
 fun QuizView(
     state: DrillUiState,
-    onAnswer: (Int) -> Unit,
+    onSelect: (Int) -> Unit,
+    onCheck: () -> Unit,
     onNext: () -> Unit,
-    onPlayAudio: () -> Unit,
+    onPlayAudio: (slow: Boolean) -> Unit,
     onBack: () -> Unit,
     onSpeak: () -> Unit = {},
-    onRevealWord: () -> Unit = {},
+    onToggleWord: () -> Unit = {},
 ) {
     val q = state.question ?: run {
         Box(
@@ -45,90 +59,85 @@ fun QuizView(
         QuestionMode.PRODUCE -> "PILIH KATANYA · PICK THE WORD"
     }
 
-    val topPad = topContentPadding(12.dp)
-    val bottomPad = screenBottomPadding(28.dp)
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(PaddingValues(start = 24.dp, end = 24.dp, top = topPad, bottom = bottomPad)),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = topContentPadding(12.dp),
+                    bottom = screenBottomPadding(28.dp),
+                ),
+        ) {
+            Header(state, onBack)
+
+            Spacer(Modifier.height(30.dp))
             Text(
-                "✕",
-                style = MaterialTheme.typography.titleLarge,
-                color = LancarSecondaryText,
-                modifier = Modifier.clickable(onClick = onBack).padding(end = 14.dp),
-            )
-            LinearProgressIndicator(
-                progress = { (state.index + if (state.answered) 1 else 0).toFloat() / state.total },
-                modifier = Modifier.weight(1f).height(10.dp).clip(RoundedCornerShape(99.dp)),
+                kindLabel,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp,
+                letterSpacing = 1.6.sp,
                 color = LocalAccentColor.current,
-                trackColor = LancarPanel,
-                gapSize = 0.dp,
-                drawStopIndicator = {},
             )
-            Text(
-                "${state.index + 1} / ${state.total}",
-                style = MaterialTheme.typography.labelMedium,
-                color = LancarSecondaryText,
-                modifier = Modifier.padding(start = 14.dp),
-            )
-        }
+            Spacer(Modifier.height(10.dp))
 
-        Spacer(Modifier.height(30.dp))
-        Text(kindLabel, style = MaterialTheme.typography.labelMedium, color = LocalAccentColor.current, letterSpacing = 2.sp)
-        Spacer(Modifier.height(10.dp))
-
-        if (q.mode == QuestionMode.LISTEN) {
-            AudioButton(onPlay = onPlayAudio)
-            if (state.revealText) {
-                Spacer(Modifier.height(14.dp))
-                Text(q.card.indonesian, style = MaterialTheme.typography.headlineMedium)
-            } else if (!state.answered) {
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    "Terlalu berisik? Lihat kata · Too loud? Show word",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = LancarSecondaryText,
-                    modifier = Modifier.clickable(onClick = onRevealWord),
+            if (q.mode == QuestionMode.LISTEN) {
+                AudioPanel(
+                    playing = state.playing,
+                    word = q.card.indonesian,
+                    revealed = state.revealText,
+                    onPlay = onPlayAudio,
+                    onToggleWord = onToggleWord,
                 )
-            }
-        } else {
-            Text(q.promptText, style = MaterialTheme.typography.headlineMedium)
-            if (q.mode == QuestionMode.PRODUCE && state.sttAvailable && !state.answered) {
-                Spacer(Modifier.height(16.dp))
-                MicButton(listening = state.listening, onSpeak = onSpeak)
-                state.speechHint?.let {
-                    Spacer(Modifier.height(8.dp))
-                    Text(it, style = MaterialTheme.typography.bodyMedium, color = LancarSecondaryText)
+            } else {
+                Text(q.promptText, style = MaterialTheme.typography.headlineMedium)
+                if (q.mode == QuestionMode.PRODUCE && state.sttAvailable && !state.answered) {
+                    Spacer(Modifier.height(16.dp))
+                    MicButton(listening = state.listening, onSpeak = onSpeak)
+                    state.speechHint?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(it, style = MaterialTheme.typography.bodyMedium, color = LancarSecondaryText)
+                    }
                 }
             }
+
+            Spacer(Modifier.height(26.dp))
+
+            q.options.forEachIndexed { i, opt ->
+                OptionRow(
+                    label = opt,
+                    key = OPTION_KEYS[i].toString(),
+                    state = when {
+                        !state.answered -> if (state.selected == i) OptState.SELECTED else OptState.IDLE
+                        i == q.correctIndex -> OptState.CORRECT
+                        i == state.selected -> OptState.WRONG
+                        else -> OptState.DIMMED
+                    },
+                    enabled = !state.answered,
+                    onClick = { onSelect(i) },
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+
+            if (!state.answered) {
+                Spacer(Modifier.height(10.dp))
+                CheckButton(enabled = state.selected != null, onClick = onCheck)
+            }
         }
 
-        Spacer(Modifier.height(26.dp))
-
-        q.options.forEachIndexed { i, opt ->
-            OptionButton(
-                label = opt,
-                enabled = !state.answered,
-                state = when {
-                    !state.answered -> OptState.IDLE
-                    i == q.correctIndex -> OptState.CORRECT
-                    i == state.selected -> OptState.WRONG
-                    else -> OptState.DIMMED
-                },
-                onClick = { onAnswer(i) },
-            )
-            Spacer(Modifier.height(12.dp))
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        if (state.answered) {
-            val correct = state.selected == q.correctIndex
-            Feedback(
-                correct = correct,
+        AnimatedVisibility(
+            visible = state.answered,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically { it } + fadeIn(),
+            exit = fadeOut(),
+        ) {
+            FeedbackSheet(
+                correct = state.selected == q.correctIndex,
+                word = q.card.indonesian,
+                answer = q.card.english,
                 note = q.card.note,
                 isLast = state.index == state.total - 1,
                 onNext = onNext,
@@ -138,16 +147,65 @@ fun QuizView(
 }
 
 @Composable
-private fun AudioButton(onPlay: () -> Unit) {
-    Row(
+private fun Header(state: DrillUiState, onBack: () -> Unit) {
+    val target = (state.index + if (state.answered) 1 else 0).toFloat() /
+        state.total.coerceAtLeast(1)
+    val pct by animateFloatAsState(target, tween(450), label = "quizProgress")
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(LancarInk.copy(alpha = 0.06f))
+                .clickable(onClickLabel = "Tutup · Close", onClick = onBack),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("✕", style = MaterialTheme.typography.labelLarge, color = LancarSecondaryText)
+        }
+        Spacer(Modifier.width(14.dp))
+        Box(
+            Modifier
+                .weight(1f)
+                .height(9.dp)
+                .clip(RoundedCornerShape(99.dp))
+                .background(LancarPanel),
+        ) {
+            // fillMaxWidth rejects 0f, so an empty bar renders as an invisible sliver.
+            Box(
+                Modifier
+                    .fillMaxWidth(pct.coerceIn(0.0001f, 1f))
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(99.dp))
+                    .background(accentGradient()),
+            )
+        }
+        Spacer(Modifier.width(14.dp))
+        Text(
+            "${state.index + 1} / ${state.total}",
+            style = MaterialTheme.typography.labelMedium,
+            color = LancarSecondaryText,
+        )
+    }
+}
+
+@Composable
+private fun CheckButton(enabled: Boolean, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(99.dp)
+    Box(
         Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(LocalAccentColor.current)
-            .clickable(onClick = onPlay)
-            .padding(horizontal = 22.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .fillMaxWidth()
+            .height(54.dp)
+            .clip(shape)
+            .then(if (enabled) Modifier.background(accentGradient()) else Modifier.background(LancarPanel))
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
-        Text("🔉  Putar audio", style = MaterialTheme.typography.labelLarge, color = LancarCream)
+        Text(
+            "Periksa · Check",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            color = if (enabled) LancarCream else LancarSecondaryText.copy(alpha = 0.6f),
+        )
     }
 }
 
@@ -166,84 +224,5 @@ private fun MicButton(listening: Boolean, onSpeak: () -> Unit) {
             style = MaterialTheme.typography.labelLarge,
             color = LancarCream,
         )
-    }
-}
-
-private enum class OptState { IDLE, CORRECT, WRONG, DIMMED }
-
-@Composable
-private fun OptionButton(
-    label: String,
-    enabled: Boolean,
-    state: OptState,
-    onClick: () -> Unit,
-) {
-    val bg = when (state) {
-        OptState.CORRECT -> LancarCorrectBg
-        OptState.WRONG -> LancarWrongBg
-        else -> MaterialTheme.colorScheme.surface
-    }
-    val border = when (state) {
-        OptState.CORRECT -> LancarGreen
-        OptState.WRONG -> LancarWrongBorder
-        else -> LancarBorder
-    }
-    val textColor = when (state) {
-        OptState.CORRECT -> LancarCorrectText
-        OptState.WRONG -> LancarWrongText
-        OptState.DIMMED -> LancarInk.copy(alpha = 0.45f)
-        OptState.IDLE -> LancarInk
-    }
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(bg)
-            .border(1.5.dp, border, RoundedCornerShape(16.dp))
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 16.dp),
-    ) {
-        Text(label, style = MaterialTheme.typography.labelLarge, color = textColor)
-    }
-}
-
-@Composable
-private fun Feedback(correct: Boolean, note: String?, isLast: Boolean, onNext: () -> Unit) {
-    val bg = if (correct) LancarCorrectBg else LancarWrongBg
-    val fg = if (correct) LancarCorrectText else LancarWrongText
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(bg)
-            .padding(20.dp),
-    ) {
-        Text(
-            if (correct) "Betul! 🎉" else "Hampir…",
-            style = MaterialTheme.typography.titleMedium,
-            color = fg,
-        )
-        if (!note.isNullOrBlank()) {
-            Spacer(Modifier.height(4.dp))
-            Text(note, style = MaterialTheme.typography.bodyMedium, color = fg)
-        }
-        Spacer(Modifier.height(14.dp))
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(LancarInk)
-                .clickable(onClick = onNext)
-                .padding(vertical = 15.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                if (isLast) "Selesai ✓" else "Lanjut →",
-                style = MaterialTheme.typography.labelLarge,
-                color = LancarCream,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
-        }
     }
 }
