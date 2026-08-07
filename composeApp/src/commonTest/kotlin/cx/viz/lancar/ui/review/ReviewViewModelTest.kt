@@ -12,6 +12,7 @@ import cx.viz.lancar.domain.QuestionFactory
 import cx.viz.lancar.platform.AudioPlayer
 import cx.viz.lancar.platform.NoopAudioPlayer
 import cx.viz.lancar.ui.AppModule
+import cx.viz.lancar.ui.drill.SLOW_RATE
 import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -130,8 +131,51 @@ class ReviewViewModelTest {
         day = 100L
         val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
         assertFalse(vm.state.value.revealText)
-        vm.revealWord()
+        vm.toggleWord()
         assertTrue(vm.state.value.revealText)
+    }
+
+    @Test fun selectDoesNotGradeTheCard() {
+        var day = 10L
+        val module = setup { day }
+        module.progress.recordAnswer("a", correct = true) // box 1, due day 11
+        day = 100L
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        val before = module.progress.forCards(listOf("a"))["a"]!!
+        vm.select(0)
+        assertFalse(vm.state.value.answered)
+        assertEquals(0, vm.state.value.selected)
+        val after = module.progress.forCards(listOf("a"))["a"]!!
+        assertEquals(before.correct, after.correct)
+        assertEquals(before.wrong, after.wrong)
+    }
+
+    @Test fun checkGradesTheCardOnce() {
+        var day = 10L
+        val module = setup { day }
+        module.progress.recordAnswer("a", correct = true)
+        day = 100L
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        val q = vm.state.value.question!!
+        val before = module.progress.forCards(listOf(q.card.id))[q.card.id]!!.correct
+        vm.select(q.correctIndex)
+        vm.check()
+        vm.check()
+        assertTrue(vm.state.value.answered)
+        assertEquals(1, vm.state.value.correctCount)
+        assertEquals(before + 1, module.progress.forCards(listOf(q.card.id))[q.card.id]!!.correct)
+    }
+
+    @Test fun slowPlaybackUsesReducedRate() {
+        var day = 10L
+        val audio = RecordingAudio()
+        val module = setup(FakeAudioReviewContent(), audio) { day }
+        module.progress.recordAnswer("a", correct = true)
+        day = 100L
+        module.settings.setAutoPlayAudio(false)
+        val vm = ReviewViewModel(module, dispatcher = Dispatchers.Unconfined)
+        vm.playAudio(slow = true)
+        assertEquals(listOf("a.m4a" to SLOW_RATE), audio.played)
     }
 
     @Test fun autoPlayMatchesEmittedModeWhenOn() {
