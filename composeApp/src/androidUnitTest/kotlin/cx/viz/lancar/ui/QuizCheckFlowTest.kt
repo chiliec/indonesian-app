@@ -76,10 +76,10 @@ class QuizCheckFlowTest {
         mainClock.advanceTimeBy(1_000)
         onNodeWithText("Lanjut · Continue").assertExists()
 
-        // Advancing to the next question drops the sheet immediately and resets to the
-        // pre-answer state — regression guard for the fadeOut answer-leak bug.
+        // Advancing drops the sheet essentially instantly — regression guard for the
+        // fadeOut answer-leak bug. An animated (fadeOut) exit would leave the sheet, and
+        // its Lanjut button, present/hit-testable for ~300ms after this click.
         onNodeWithText("Lanjut · Continue").performClick()
-        mainClock.advanceTimeBy(1_000)
-        onNodeWithText("Periksa · Check").assertExists()
+        onNodeWithText("Lanjut · Continue").assertDoesNotExist()
     }
 }
