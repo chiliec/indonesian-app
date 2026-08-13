@@ -4,8 +4,15 @@ How to cut a Google Play release of Lancar. This is the **Android** runbook;
 store copy (shared with iOS) lives in [`store-listing.md`](store-listing.md).
 
 > Status: **Google Play — not published.** Release infra is wired and dry-run-validated
-> (signed AAB builds and verifies locally; store assets generated), but the remaining
-> steps need a Google Play Console account, which does not exist yet.
+> (signed AAB builds and verifies locally; store assets generated) and a
+> `platform :android` fastlane pipeline (`play_stage` / `bundle` / `play_internal` /
+> `play_listing` / `play_promote`) is in place. The remaining steps need a Google Play
+> Console account, which does not exist yet.
+>
+> The two lanes that need no credentials — `bundle` and `play_stage` — build the AAB
+> and stage the listing without a Play account. The upload lanes are **unexercised**:
+> nothing can authenticate against Play until the account exists, so treat their first
+> real run as untested.
 >
 > **Android ships today via GitHub Releases** — latest is
 > [Lancar 1.0.5](https://github.com/chiliec/indonesian-app/releases/tag/v1.0.5)
@@ -148,6 +155,32 @@ jarsigner -verify -verbose:summary -certs \
 > [`bundletool`](https://github.com/google/bundletool) (`build-apks --mode=universal`)
 > to produce a universal APK, or just smoke-test the debug APK — the UI is identical
 > (release has `isMinifyEnabled = false`, so no R8 divergence).
+
+---
+
+## 3a. Automated path — fastlane (`platform :android`)
+
+Once the Play account + service-account key exist, the whole build-and-upload is
+wired in `fastlane/Fastfile`. Store text/screenshots are staged from
+`docs/store-assets/` into the `supply` `<lang>/` layout automatically each run
+(single source of truth stays in `docs/`).
+
+```bash
+# credential-free (verify without a Play account):
+bundle exec fastlane android play_stage      # stage the listing tree, print it
+bundle exec fastlane android bundle          # build the signed AAB
+
+# require play-service-account.json (or PLAY_JSON_KEY):
+bundle exec fastlane android play_internal   # build AAB + upload to internal (draft)
+bundle exec fastlane android play_listing    # push listing text/images only
+bundle exec fastlane android play_promote    # internal -> production (PLAY_ROLLOUT)
+```
+
+- `versionCode` auto-resolves to `(highest code on Play) + 1`; pin it with
+  `ANDROID_VERSION_CODE`. `build.gradle.kts` reads it via `-PversionCode`.
+- `PLAY_VALIDATE_ONLY=1` makes every upload lane a Play-validated dry run.
+- The service account JSON: gitignored `play-service-account.json` at the repo
+  root (local) or base64 `PLAY_JSON_KEY` (CI). See step 5b.
 
 ---
 
