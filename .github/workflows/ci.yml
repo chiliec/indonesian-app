@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Unit tests (JVM + Robolectric)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      # Fails when a .sq is edited without a matching .sqm, so migrating the
+      # archived schema forward no longer reproduces it. Unit tests cannot catch
+      # this drift, because a fresh install builds the schema directly instead of
+      # migrating through the .sqm files — only an upgrading install would crash.
+      - name: Verify SQLDelight migrations
+        run: ./gradlew :composeApp:verifySqlDelightMigration
+
+      # These run on the JVM via Robolectric — no emulator required.
+      - name: Run unit tests
+        run: ./gradlew :composeApp:testDebugUnitTest
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report
+          path: composeApp/build/reports/tests/testDebugUnitTest
+          if-no-files-found: ignore

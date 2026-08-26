@@ -74,6 +74,10 @@ sqldelight {
     databases {
         register("LancarDatabase") {
             packageName.set("cx.viz.lancar.db")
+            // Archives a .db snapshot per schema version. Setting this is what makes
+            // SQLDelight create the verifyMigration task at all — without it there is
+            // no check that the .sqm files actually reproduce the .sq schema.
+            schemaOutputDirectory.set(file("src/commonMain/sqldelight/databases"))
         }
     }
 }
