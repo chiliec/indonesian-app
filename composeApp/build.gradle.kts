@@ -90,6 +90,18 @@ val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) keystorePropertiesFile.inputStream().use { load(it) }
 }
 
+// Play requires a strictly increasing versionCode per upload. The release lanes
+// derive the next one from the highest code already on Play and pass it in via
+// -PversionCode (or ANDROID_VERSION_CODE); everything else — local debug builds,
+// CI unit tests, clean checkouts, and the GitHub-Releases APK flow — falls back
+// to the committed default below.
+val defaultVersionCode = 4
+val resolvedVersionCode = (
+    findProperty("versionCode") as String? ?: System.getenv("ANDROID_VERSION_CODE")
+)?.trim()?.takeIf { it.isNotEmpty() }?.let {
+    it.toIntOrNull() ?: throw GradleException("versionCode must be an integer, got \"$it\"")
+} ?: defaultVersionCode
+
 android {
     namespace = "cx.viz.lancar"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -102,7 +114,7 @@ android {
         applicationId = "cx.viz.lancar"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 4
+        versionCode = resolvedVersionCode
         versionName = "1.0.5"
     }
 

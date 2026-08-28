@@ -35,6 +35,15 @@ Gemfile.lock
 # deliver stages screenshots here at runtime from docs/store-assets/ios (single source of truth)
 fastlane/screenshots/
 
+# supply stages the Play listing here at runtime from docs/store-assets (single source of truth)
+fastlane/play-metadata/
+
+# Play service account key (Release-manager JSON) — never commit
+play-service-account.json
+
+# Built app bundle
+*.aab
+
 # local ASC API creds for fastlane (dotenv auto-load); .env.example is tracked
 fastlane/.env
 

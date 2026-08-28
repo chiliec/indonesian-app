@@ -4,8 +4,15 @@ How to cut a Google Play release of Lancar. This is the **Android** runbook;
 store copy (shared with iOS) lives in [`store-listing.md`](store-listing.md).
 
 > Status: **Google Play — not published.** Release infra is wired and dry-run-validated
-> (signed AAB builds and verifies locally; store assets generated), but the remaining
-> steps need a Google Play Console account, which does not exist yet.
+> (signed AAB builds and verifies locally; store assets generated) and a
+> `platform :android` fastlane pipeline (`play_stage` / `bundle` / `play_internal` /
+> `play_listing` / `play_promote`) is in place. The remaining steps need a Google Play
+> Console account, which does not exist yet.
+>
+> The two lanes that need no credentials — `bundle` and `play_stage` — build the AAB
+> and stage the listing without a Play account. The upload lanes are **unexercised**:
+> nothing can authenticate against Play until the account exists, so treat their first
+> real run as untested.
 >
 > **Android ships today via GitHub Releases** — latest is
 > [Lancar 1.0.5](https://github.com/chiliec/indonesian-app/releases/tag/v1.0.5)
@@ -34,7 +41,7 @@ with an *upload key*. The build reads the upload key from a **gitignored**
 that file is absent, release builds are produced **unsigned** — so CI and other
 machines still build without the secret.
 
-`keystore.properties` format:
+`keystore.properties` format (template committed as `keystore.properties.example`):
 
 ```properties
 storeFile=lancar-release.jks
@@ -151,6 +158,32 @@ jarsigner -verify -verbose:summary -certs \
 
 ---
 
+## 3a. Automated path — fastlane (`platform :android`)
+
+Once the Play account + service-account key exist, the whole build-and-upload is
+wired in `fastlane/Fastfile`. Store text/screenshots are staged from
+`docs/store-assets/` into the `supply` `<lang>/` layout automatically each run
+(single source of truth stays in `docs/`).
+
+```bash
+# credential-free (verify without a Play account):
+bundle exec fastlane android play_stage      # stage the listing tree, print it
+bundle exec fastlane android bundle          # build the signed AAB
+
+# require play-service-account.json (or PLAY_JSON_KEY):
+bundle exec fastlane android play_internal   # build AAB + upload to internal (draft)
+bundle exec fastlane android play_listing    # push listing text/images only
+bundle exec fastlane android play_promote    # internal -> production (PLAY_ROLLOUT)
+```
+
+- `versionCode` auto-resolves to `(highest code on Play) + 1`; pin it with
+  `ANDROID_VERSION_CODE`. `build.gradle.kts` reads it via `-PversionCode`.
+- `PLAY_VALIDATE_ONLY=1` makes every upload lane a Play-validated dry run.
+- The service account JSON: gitignored `play-service-account.json` at the repo
+  root (local) or base64 `PLAY_JSON_KEY` (CI). See step 5b.
+
+---
+
 ## 4. Store listing assets (already generated)
 
 | Asset | Requirement | File |
@@ -209,6 +242,68 @@ Lancar is fully offline and collects nothing — these forms are quick:
 
 ---
 
+## 5a. Play service account key (for the fastlane upload lanes / CI)
+
+The upload lanes (`play_internal`, `play_listing`, `play_promote`) and the CI
+workflow authenticate to Play with a **service account JSON**, never a password.
+Create it once, after the Play Console account exists:
+
+1. Play Console → **Setup → API access** → link a Google Cloud project (or create
+   one), then **Create new service account** (opens Google Cloud IAM).
+2. In Google Cloud → the new service account → **Keys → Add key → JSON** →
+   download. This is the file below; it is a secret.
+3. Back in Play Console → **API access → grant access** to that service account
+   with the **Release manager** role (enough to upload to tracks and edit the
+   listing).
+4. Install the key so fastlane can find it:
+   - **Local:** save the downloaded JSON as `play-service-account.json` at the
+     repo root. It is gitignored — never commit it.
+   - **CI:** base64 it into the `PLAY_JSON_KEY` secret (see 5b).
+
+```bash
+# local
+mv ~/Downloads/<downloaded>.json ./play-service-account.json
+# sanity-check it authenticates before any upload:
+bundle exec fastlane run validate_play_store_json_key json_key:play-service-account.json
+```
+
+## 5b. GitHub Actions secrets (for `.github/workflows/android-play.yml`)
+
+The workflow builds the signed AAB and, on a `v*` tag or manual dispatch with
+`track=internal`, uploads it to the Play internal track. It **degrades
+gracefully**: with no signing secret it builds unsigned and only saves the AAB as
+a workflow artifact; with no `PLAY_JSON_KEY` it skips the upload. Wire the secrets
+to enable the real path.
+
+Set them with `gh` (run from a checkout of this repo; needs the keystore file and
+the service-account JSON on hand):
+
+```bash
+# 1. Upload keystore — base64 the .jks into a secret
+gh secret set ANDROID_KEYSTORE_BASE64  --repo chiliec/indonesian-app < <(base64 -i lancar-release.jks)
+gh secret set ANDROID_KEYSTORE_PASSWORD --repo chiliec/indonesian-app --body '<store password>'
+gh secret set ANDROID_KEY_ALIAS         --repo chiliec/indonesian-app --body 'lancar'
+gh secret set ANDROID_KEY_PASSWORD      --repo chiliec/indonesian-app --body '<key password>'
+
+# 2. Play service account — base64 the JSON into a secret
+gh secret set PLAY_JSON_KEY --repo chiliec/indonesian-app < <(base64 -i play-service-account.json)
+
+# verify
+gh secret list --repo chiliec/indonesian-app
+```
+
+> `base64 -i` is the macOS/BSD form. On GNU/Linux use `base64 -w0 <file>` (or pipe:
+> `base64 lancar-release.jks | tr -d '\n' | gh secret set ANDROID_KEYSTORE_BASE64 --repo chiliec/indonesian-app`).
+> The workflow rebuilds `keystore.properties` from these four values, so the
+> `storeFile` name it writes (`lancar-release.jks`) must match the decoded file —
+> it does.
+
+Trigger a credential-free dry run first (builds the AAB, no upload):
+**Actions → Android Play → Run workflow → track: none**. Only once that is green,
+wire `PLAY_JSON_KEY` and run with `track: internal`.
+
+---
+
 ## 6. First release — Internal testing track
 
 Recommended path for the first upload (fastest review, up to 100 testers):
@@ -237,6 +332,8 @@ requires the full store listing + all content forms complete.
 - [ ] Store text copied from `store-listing.md`
 - [ ] Privacy-policy URL live
 - [ ] Data-safety / content-rating / target-audience forms answered
+- [ ] Play service account JSON created (Release manager), `play-service-account.json` in place — see 5a
+- [ ] (CI only) `ANDROID_KEYSTORE_*` + `PLAY_JSON_KEY` GitHub secrets set — see 5b
 
 ---
 
