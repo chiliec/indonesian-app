@@ -5,9 +5,9 @@ runbook; store copy (shared with Android) lives in
 [`store-listing.md`](store-listing.md). The Android counterpart is
 [`release-android.md`](release-android.md).
 
-> Status (2026-07-28): **App Store submission 1.0.5 is `WAITING_FOR_REVIEW`**
-> (App ID `6795209576`, build 4) — awaiting Apple review, then a manual Release
-> (`automatic_release: false`). Also **LIVE on TestFlight (internal).** The internal group was
+> Status (2026-10-02): **`1.0.5` (build 4) is live on the App Store**; `1.0.6` (build 5)
+> went to TestFlight only. **`1.0.7`** (anonymous Umami analytics, §4 / App Privacy
+> re-answer) is the release in flight — tag `v1.0.7`, then `release` + `submit` lanes. Also **LIVE on TestFlight (internal).** The internal group was
 > first established with build 1 of `1.0.2`, archived and uploaded by CI (§10), and
 > is **VALID** in App Store Connect (App ID `6795209576`, Team `7JF6XQC536`) — the
 > privacy-manifest validator passed. New builds flow to that group automatically;
@@ -82,7 +82,7 @@ There is no gitignored secrets file on iOS (unlike Android's `keystore.propertie
 
 Set in the Xcode target build settings (both configs):
 
-- `MARKETING_VERSION` — user-facing version. Currently **`1.0.4`**. This maps to
+- `MARKETING_VERSION` — user-facing version. Currently **`1.0.7`**. This maps to
   `CFBundleShortVersionString`. Keep in sync with Android `versionName`. Bump it in
   Xcode for each new user-facing version before tagging.
 - `CURRENT_PROJECT_VERSION` — build number. Currently **`1`** in the repo, but CI

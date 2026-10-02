@@ -180,7 +180,7 @@ platform :ios do
 
   desc "Prepare the App Store listing: push metadata + screenshots (does NOT submit)"
   # Uploads the App Store text (fastlane/metadata/) and the 6.9" screenshots to the
-  # 1.0.5 App Store version, WITHOUT submitting for review and WITHOUT uploading a
+  # 1.0.7 App Store version, WITHOUT submitting for review and WITHOUT uploading a
   # binary (the build is already on TestFlight via the beta lane). Review the result
   # in App Store Connect, then Submit for Review manually. Flip submit_for_review to
   # automate that step later.
@@ -205,7 +205,7 @@ platform :ios do
     upload_to_app_store(
       api_key: api_key,
       app_identifier: APP_IDENTIFIER,
-      app_version: "1.0.5",
+      app_version: "1.0.7",
       metadata_path: File.expand_path("metadata", __dir__),
       screenshots_path: root,
       skip_binary_upload: true,        # build already on TestFlight (beta lane)
@@ -218,7 +218,7 @@ platform :ios do
     )
   end
 
-  desc "Submit the 1.0.5 App Store version for review (attaches the latest build)"
+  desc "Submit the 1.0.7 App Store version for review (attaches the latest build)"
   # Assumes the listing is already uploaded (release lane), age rating is set
   # (scripts/asc_age_rating.rb), and App Privacy is published in the ASC web UI —
   # Apple rejects the submission otherwise. deliver selects the latest build for
@@ -228,7 +228,7 @@ platform :ios do
     upload_to_app_store(
       api_key: api_key,
       app_identifier: APP_IDENTIFIER,
-      app_version: "1.0.5",
+      app_version: "1.0.7",
       skip_binary_upload: true,
       skip_metadata: true,
       skip_screenshots: true,

@@ -1,1 +1,1 @@
-First release of Lancar: 8 topic modules plus Mixed, ~2,000 Indonesian words with native audio, and three quick quiz modes (listen, read, produce). Fully offline — no account, no internet. Selamat belajar!
+Anonymous usage analytics: Lancar now reports which screens are opened (screen name, app and OS version, device model — no identifiers, no learning data) to our own self-hosted Umami, so we can see which features matter. Words, audio and your progress stay fully offline. Privacy policy updated.

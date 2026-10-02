@@ -8,8 +8,8 @@ store copy (shared with iOS) lives in [`store-listing.md`](store-listing.md).
 > steps need a Google Play Console account, which does not exist yet.
 >
 > **Android ships today via GitHub Releases** — latest is
-> [Lancar 1.0.5](https://github.com/chiliec/indonesian-app/releases/tag/v1.0.5)
-> (universal APK, `versionCode 4`). See "Distribution today" below.
+> [Lancar 1.0.7](https://github.com/chiliec/indonesian-app/releases/tag/v1.0.7)
+> (universal APK, `versionCode 5`). See "Distribution today" below.
 
 ---
 
@@ -66,8 +66,8 @@ manager + offsite). Losing the upload key means filing a Play upload-key reset.
 Set in `composeApp/build.gradle.kts` `defaultConfig`:
 
 - `versionCode` — integer, **must strictly increase** with every uploaded build.
-  Currently `4`. Bump by 1 each upload (even for re-uploads to the same track).
-- `versionName` — human string shown to users. Currently `"1.0.5"`.
+  Currently `5`. Bump by 1 each upload (even for re-uploads to the same track).
+- `versionName` — human string shown to users. Currently `"1.0.7"`.
 
 Keep `versionName` in sync with the iOS `MARKETING_VERSION` when releasing both.
 
@@ -97,8 +97,8 @@ $BT/aapt2 dump badging composeApp/build/outputs/apk/release/composeApp-release.a
 $BT/apksigner verify --print-certs composeApp/build/outputs/apk/release/composeApp-release.apk
 
 # 3. Publish (APK name must carry the version — it's the user-facing download).
-cp composeApp/build/outputs/apk/release/composeApp-release.apk lancar-1.0.5.apk
-gh release create v1.0.5 lancar-1.0.5.apk --title "Lancar 1.0.5" --notes-file notes.md
+cp composeApp/build/outputs/apk/release/composeApp-release.apk lancar-1.0.7.apk
+gh release create v1.0.7 lancar-1.0.7.apk --title "Lancar 1.0.7" --notes-file notes.md
 ```
 
 - **Signing cert must match previous releases** or the update fails to install over an

@@ -102,8 +102,8 @@ android {
         applicationId = "cx.viz.lancar"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 4
-        versionName = "1.0.5"
+        versionCode = 5
+        versionName = "1.0.7"
     }
 
     packaging {
