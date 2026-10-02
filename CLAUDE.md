@@ -1,7 +1,7 @@
 # Lancar — Indonesian Vocabulary Trainer (KMP)
 
 Offline iOS + Android vocabulary trainer. Kotlin Multiplatform + Compose Multiplatform.
-No backend, no network at runtime. Content and audio are bundled resources.
+No backend. Content and audio are bundled resources. The only runtime network call is `platform/Analytics.kt` (fire-and-forget screen-view POST to self-hosted Umami; off by default, enabled only in `MainActivity`/`MainViewController`, never in tests). Any other network code must also update `docs/privacy.html`, the store copy and the Data safety / App Privacy answers.
 
 ## Architecture (enforced)
 UI (Compose, immutable UiState, one ViewModel per screen, unidirectional data flow)

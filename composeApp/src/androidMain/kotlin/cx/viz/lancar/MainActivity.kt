@@ -15,6 +15,7 @@ import cx.viz.lancar.data.DriverFactory
 import cx.viz.lancar.data.ProgressRepository
 import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.db.LancarDatabase
+import cx.viz.lancar.platform.Analytics
 import cx.viz.lancar.platform.AndroidAudioPlayer
 import cx.viz.lancar.platform.AndroidSpeechRecognizer
 import cx.viz.lancar.platform.AndroidSpeechSynthesizer
@@ -49,6 +50,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Analytics.enabled = true
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),

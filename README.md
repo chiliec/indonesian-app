@@ -4,7 +4,7 @@ Lancar is a Kotlin Multiplatform + Compose Multiplatform flashcard app for learn
 
 ## Install (Android)
 
-Scan the QR code or open the [latest release](https://github.com/chiliec/indonesian-app/releases/latest) on your phone, download the APK, and tap to install. Requires **Android 7.0+**. Fully offline — no account, no network, no data collected.
+Scan the QR code or open the [latest release](https://github.com/chiliec/indonesian-app/releases/latest) on your phone, download the APK, and tap to install. Requires **Android 7.0+**. Works offline — no account, no ads, no tracking; the only network traffic is anonymous screen-view analytics to our own [Umami](https://analytics.nextgensoft.co).
 
 <img src="docs/install-qr.png" width="200" alt="QR code to the latest Lancar Android release" />
 
@@ -12,7 +12,7 @@ Scan the QR code or open the [latest release](https://github.com/chiliec/indones
 
 > iOS is not yet distributed (requires an Apple Developer account — see [`docs/release-ios.md`](docs/release-ios.md)).
 
-**Privacy:** Lancar collects no data and works fully offline — [privacy policy](https://chiliec.github.io/indonesian-app/privacy.html).
+**Privacy:** Lancar collects no personal data, only anonymous screen views (no identifiers), and works offline — [privacy policy](https://chiliec.github.io/indonesian-app/privacy.html).
 
 ## Prerequisites
 

@@ -1,6 +1,6 @@
 Lancar — learn Indonesian vocabulary, anywhere.
 
-Lancar is a fast, offline Indonesian (Bahasa Indonesia) vocabulary trainer. No account, no internet, no distractions — just you and ~2,000 essential words, with native audio on thousands of cards.
+Lancar is a fast, offline Indonesian (Bahasa Indonesia) vocabulary trainer. No account, no ads, no distractions — just you and ~2,000 essential words, with native audio on thousands of cards.
 
 How it works
 • Browse 8 topic modules, or shuffle everything with Mixed.
