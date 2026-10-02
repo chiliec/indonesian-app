@@ -97,9 +97,11 @@ Both are already wired through `Info.plist` via `$(MARKETING_VERSION)` /
 
 ## 4. Privacy manifest — `PrivacyInfo.xcprivacy` (⚠️ still to create)
 
-App Store submissions **require** a privacy manifest. Lancar collects nothing and
-uses no network, so the data-collection section is empty; the only entries needed
-are **required-reason API** declarations for what the KMP/SQLite stack touches.
+App Store submissions **require** a privacy manifest. Since 2026-10-02 the
+data-collection section declares the self-hosted Umami screen-view analytics
+(Product Interaction + Coarse Location, purpose Analytics, not linked, not
+tracking — see the live file); the rest are **required-reason API** declarations
+for what the KMP/SQLite stack touches.
 
 Create `iosApp/iosApp/PrivacyInfo.xcprivacy` and **add it to the iosApp target's
 "Copy Bundle Resources"** build phase (in Xcode: drag it into the project, tick the
@@ -138,10 +140,11 @@ iosApp target). Starting point:
 > on what the compiled framework + its transitive deps call. Apple's validator (and
 > the "Missing privacy manifest" / "required reason" emails after a TestFlight
 > upload) will name any category you must add or may remove. Treat the block above
-> as a starting point, upload once, and adjust. Data-collection stays empty — the
-> app is fully offline and stores progress/settings only on-device (SQLDelight).
+> as a starting point, upload once, and adjust. Progress/settings stay on-device
+> (SQLDelight).
 
-- **Data collection:** none. No network at runtime.
+- **Data collection:** Product Interaction + Coarse Location, purpose Analytics,
+  not linked to the user (self-hosted Umami screen views, `platform/Analytics.kt`).
 - **Tracking:** none. No ATT prompt (`NSPrivacyTracking = false`).
 
 ---
@@ -248,10 +251,11 @@ Store the results under `docs/store-assets/ios/` (create it) to match
 
 ## 8. App Store review content forms (answers for Lancar)
 
-Same posture as Android — fully offline, collects nothing:
+Same posture as Android — offline except anonymous screen-view analytics:
 
-- **App Privacy (Data collection):** No data collected. (Matches
-  `PrivacyInfo.xcprivacy`.)
+- **App Privacy (Data collection):** Product Interaction + Coarse Location, purpose
+  Analytics, not linked to the user, not used for tracking. (Matches
+  `PrivacyInfo.xcprivacy`; re-answer + **Publish** whenever this changes.)
 - **Privacy policy URL:** live at
   **https://chiliec.github.io/indonesian-app/privacy.html** (GitHub Pages, source
   `docs/privacy.html`; shared with the Android listing).
@@ -468,11 +472,13 @@ as "appStoreVersions ... is not in valid state"). Findings + automation from the
 - **Pricing → Free — WEB UI.** Set in App Store Connect → Pricing and Availability.
   No safe API (appPriceSchedule needs a territory + free price-point graph; not worth
   mis-pricing a live app). Confirmed set (manualPrices: 1, base USA).
-- **App Privacy → No data collected — WEB UI ONLY.** No reachable API for the privacy
+- **App Privacy → WEB UI ONLY.** No reachable API for the privacy
   nutrition labels with our key (app resource exposes no data-usage relationship;
   all `appDataUsages*` paths 404 on public + Iris; spaceship targets removed
   endpoints; Ruby 2.6 caps fastlane at 2.231.1). **Browser:** ASC → Lancar →
-  **App Privacy** → *Data Collection* → **No, we do not collect data** → **Publish**.
+  **App Privacy** → *Data Collection* → **Yes** → Product Interaction + Coarse
+  Location (Analytics, not linked, no tracking) → **Publish**. (Was "No, we do not
+  collect data" until the 2026-10-02 analytics change.)
   ⚠️ The **Publish** button is separate from answering — an un-published draft still
   fails submit with "You must have published answers to your app's data usages."
 

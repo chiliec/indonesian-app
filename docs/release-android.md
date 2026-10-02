@@ -193,10 +193,17 @@ sips -c 500 1024 "$TMP/feature-graphic.svg.png" --out docs/store-assets/android/
 
 ## 5. Play Console content forms (answers for Lancar)
 
-Lancar is fully offline and collects nothing — these forms are quick:
+Lancar is offline except for anonymous screen-view analytics (self-hosted Umami,
+`platform/Analytics.kt`, no SDK; added 2026-10-02 together with the `INTERNET`
+permission) — these forms are quick:
 
-- **Data safety:** No data collected, no data shared. (No network at runtime; progress
-  and settings stay on-device in SQLDelight.)
+- **Data safety:** *yes* to "Does your app collect or share any of the required user
+  data types?". Collected, **not shared**, not optional, encrypted in transit (HTTPS),
+  no deletion request path (nothing identifies the user):
+  - *App activity → App interactions* — purpose Analytics (screen name + app version).
+  - *Location → Approximate location* — purpose Analytics (derived server-side from
+    the IP, which is not stored).
+  Progress and settings stay on-device in SQLDelight — not "collection".
 - **App content / privacy policy:** Play requires a privacy-policy URL. Draft one
   stating "no data collected, no accounts, fully offline" and host it (e.g. a GitHub
   Pages page). **← the one artifact still to create.**
