@@ -546,7 +546,7 @@ manually** in App Store Connect.
 
 **Still open / next:**
 - **Apple review** (~24–48h) → on approval, **manually Release** in ASC (or flip
-  `automatic_release` in the `submit` lane for future versions). If rejected, pull the
+  `AUTO_RELEASE=1` on the `submit` lane, as done for 1.0.7). If rejected, pull the
   Resolution Center note.
 - **External testing** — optional wider beta; needs a one-time light Beta App Review
   + Test Information (§11 "Going wider").
