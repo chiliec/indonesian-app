@@ -4,15 +4,19 @@ import cx.viz.lancar.domain.Step
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /** Validates the real bundled course.json. Gradle runs tests with cwd = composeApp/. */
 class CourseContentTest {
-    private val lessons by lazy {
-        parseCourse(File("src/commonMain/composeResources/files/content/course.json").readText())
+    private val rawText by lazy {
+        File("src/commonMain/composeResources/files/content/course.json").readText()
     }
+    private val lessons by lazy { parseCourse(rawText) }
 
     @Test fun allFifteenLessonsPresent() = assertEquals(15, lessons.size)
+
+    @Test fun noCyrillic() = assertFalse(Regex("[Ѐ-ӿ]").containsMatchIn(rawText))
 
     @Test fun lessonIdsAreUniqueAndNonEmpty() {
         assertTrue(lessons.isNotEmpty())

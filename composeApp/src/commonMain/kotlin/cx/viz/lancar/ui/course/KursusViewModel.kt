@@ -50,7 +50,8 @@ class KursusViewModel(
                 }
                 LessonRow(l.id, i + 1, l.title, l.subtitle, state)
             }
-            _state.value = KursusUiState(rows, completed.size, lessons.size, loading = false)
+            val completedCount = rows.count { it.state is RowState.Done }
+            _state.value = KursusUiState(rows, completedCount, lessons.size, loading = false)
         }
     }
 
