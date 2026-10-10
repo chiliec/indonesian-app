@@ -14,7 +14,7 @@ data class Totals(val correct: Int, val wrong: Int)
 
 @OptIn(ExperimentalTime::class)
 class ProgressRepository(
-    private val db: LancarDatabase,
+    val db: LancarDatabase,
     private val today: () -> Long = {
         Clock.System.todayIn(TimeZone.currentSystemDefault()).toEpochDays().toLong()
     },

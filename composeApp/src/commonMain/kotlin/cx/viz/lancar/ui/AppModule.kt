@@ -1,6 +1,7 @@
 package cx.viz.lancar.ui
 
 import cx.viz.lancar.data.ContentRepository
+import cx.viz.lancar.data.CourseRepository
 import cx.viz.lancar.data.ProgressRepository
 import cx.viz.lancar.data.SettingsRepository
 import cx.viz.lancar.domain.QuestionFactory
@@ -22,6 +23,7 @@ class AppModule(
     val tts: SpeechSynthesizer = NoopSpeechSynthesizer(),
     val stt: SpeechRecognizer = NoopSpeechRecognizer(),
     val questionFactory: QuestionFactory = QuestionFactory(),
+    val course: CourseRepository = CourseRepository(progress.db),
 ) {
 
     private val _accent = MutableStateFlow(Accent.fromName(settings.accentName()))
