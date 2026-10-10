@@ -159,7 +159,14 @@ private fun StepBody(
             onTextChange = onTyped,
             onDone = { if (state.canCheck) onCheck() },
         )
-        is Step.Build -> Text(step.prompt, style = MaterialTheme.typography.headlineSmall, color = LancarInk) // replaced by BuildSentence in Task 6
+        is Step.Build -> BuildSentence(
+            prompt = step.prompt,
+            tiles = state.tiles,
+            placed = (state.selection as? Selection.Tiles)?.placed.orEmpty(),
+            enabled = !state.checked,
+            onPlace = onPlaceTile,
+            onRemove = onRemoveTile,
+        )
     }
 }
 
