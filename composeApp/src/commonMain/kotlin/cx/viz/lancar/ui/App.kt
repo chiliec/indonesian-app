@@ -43,6 +43,7 @@ fun App(appModule: AppModule) {
                 MainScaffold(
                     appModule = appModule,
                     onOpenModule = { moduleId -> nav.navigate(Drill(moduleId)) },
+                    onOpenLesson = { lessonId -> nav.navigate(Lesson(lessonId)) },
                     onOpenDeck = { moduleId -> nav.navigate(Cards(moduleId)) },
                     onOpenReview = { nav.navigate(Review) },
                     onReplayOnboarding = {

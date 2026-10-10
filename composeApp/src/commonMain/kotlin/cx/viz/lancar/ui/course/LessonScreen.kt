@@ -219,12 +219,22 @@ fun PrimaryButton(label: String, enabled: Boolean, onClick: () -> Unit) {
     }
 }
 
-/** Temporary stand-in; Task 7 replaces it with the real completion view. */
 @Composable
 fun LessonCompleteView(score: Int, total: Int, hasNext: Boolean, onRestart: () -> Unit, onNext: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("$score / $total", style = MaterialTheme.typography.headlineSmall, color = LancarInk)
-        PrimaryButton(if (hasNext) "Lanjut ke pelajaran berikutnya" else "Selesai", enabled = true, onClick = onNext)
-        PrimaryButton("Ulangi", enabled = true, onClick = onRestart)
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("🎉", style = MaterialTheme.typography.displayMedium)
+        Spacer(Modifier.height(12.dp))
+        Text("Pelajaran selesai!", style = MaterialTheme.typography.headlineSmall, color = LancarInk)
+        Spacer(Modifier.height(6.dp))
+        Text("$score / $total benar", style = MaterialTheme.typography.bodyLarge, color = LancarSecondaryText)
+        Spacer(Modifier.height(32.dp))
+        PrimaryButton(if (hasNext) "Lanjut ke pelajaran berikutnya" else "Selesai ✓", enabled = true, onClick = onNext)
+        Spacer(Modifier.height(10.dp))
+        Text(
+            "Ulangi",
+            style = MaterialTheme.typography.labelLarge,
+            color = LancarSecondaryText,
+            modifier = Modifier.clickable(onClick = onRestart).padding(12.dp),
+        )
     }
 }

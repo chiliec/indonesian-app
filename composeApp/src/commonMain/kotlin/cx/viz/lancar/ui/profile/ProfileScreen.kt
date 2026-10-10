@@ -91,7 +91,7 @@ fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
                 vm.setAutoPlay(it)
             }
             Divider()
-            SettingRow("🗑️", "Reset progres", "") { confirmingReset = true }
+            SettingRow("🗑️", "Reset mastery dan pelajaran", "") { confirmingReset = true }
             Divider()
             SettingRow("ℹ️", "Tentang", "Lancar 1.0")
         }
@@ -123,7 +123,7 @@ fun ProfileScreen(appModule: AppModule, onReplayOnboarding: () -> Unit) {
             },
             dismissButton = { TextButton(onClick = { confirmingReset = false }) { Text("Batal") } },
             title = { Text("Reset progres?") },
-            text = { Text("Semua mastery akan dihapus. Nama dan tema tetap. Tindakan ini tidak bisa dibatalkan.") },
+            text = { Text("Semua mastery dan progres kursus akan dihapus. Nama dan tema tetap. Tindakan ini tidak bisa dibatalkan.") },
         )
     }
 }

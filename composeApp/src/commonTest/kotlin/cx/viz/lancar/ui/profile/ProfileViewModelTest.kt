@@ -67,4 +67,13 @@ class ProfileViewModelTest {
         assertEquals(false, vm.state.value.autoPlay)
         assertEquals(false, m.settings.autoPlayAudio())
     }
+
+    @Test fun resetProgressAlsoClearsLessons() {
+        val m = module()
+        m.progress.recordAnswer("a", correct = true)
+        m.course.markCompleted("l01", 3)
+        ProfileViewModel(m).resetProgress()
+        assertEquals(0, m.progress.modulePercent(listOf("a")))
+        assertEquals(emptyMap(), m.course.completed())
+    }
 }

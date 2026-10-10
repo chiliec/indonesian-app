@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cx.viz.lancar.platform.Analytics
 import cx.viz.lancar.ui.AppModule
+import cx.viz.lancar.ui.course.KursusScreen
 import cx.viz.lancar.ui.home.HomeScreen
 import cx.viz.lancar.ui.kartu.KartuScreen
 import cx.viz.lancar.ui.profile.ProfileScreen
@@ -31,6 +33,7 @@ import cx.viz.lancar.ui.theme.LancarSurface
 
 private enum class Tab(val icon: String, val label: String) {
     BERANDA("🏠", "Beranda"),
+    KURSUS("📚", "Kursus"),
     KARTU("🃏", "Kartu"),
     PROGRES("📊", "Progres"),
     PROFIL("👤", "Profil"),
@@ -40,16 +43,19 @@ private enum class Tab(val icon: String, val label: String) {
 fun MainScaffold(
     appModule: AppModule,
     onOpenModule: (String) -> Unit,
+    onOpenLesson: (String) -> Unit,
     onOpenDeck: (String) -> Unit,
     onOpenReview: () -> Unit,
     onReplayOnboarding: () -> Unit,
 ) {
-    var tab by remember { mutableStateOf(Tab.BERANDA) }
+    var tabIndex by rememberSaveable { mutableStateOf(Tab.BERANDA.ordinal) }
+    val tab = Tab.entries[tabIndex]
     LaunchedEffect(tab) { Analytics.screen(tab.name.lowercase()) }
 
     Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (tab) {
             Tab.BERANDA -> HomeScreen(appModule, onOpenModule, onOpenReview)
+            Tab.KURSUS -> KursusScreen(appModule, onOpenLesson)
             Tab.KARTU -> KartuScreen(appModule, onOpenDeck)
             Tab.PROGRES -> ProgresScreen(appModule)
             Tab.PROFIL -> ProfileScreen(appModule, onReplayOnboarding)
@@ -74,7 +80,7 @@ fun MainScaffold(
                         .weight(1f)
                         .clip(RoundedCornerShape(18.dp))
                         .background(if (selected) LancarPanel else Color.Transparent)
-                        .clickable { tab = t }
+                        .clickable { tabIndex = t.ordinal }
                         .padding(vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {

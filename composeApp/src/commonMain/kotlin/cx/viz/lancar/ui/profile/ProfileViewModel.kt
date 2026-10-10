@@ -44,5 +44,8 @@ class ProfileViewModel(private val module: AppModule) {
         _state.value = _state.value.copy(autoPlay = on)
     }
 
-    fun resetProgress() = module.progress.reset()
+    fun resetProgress() {
+        module.progress.reset()
+        module.course.reset()
+    }
 }
