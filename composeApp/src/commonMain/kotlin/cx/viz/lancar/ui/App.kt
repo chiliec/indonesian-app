@@ -10,6 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import cx.viz.lancar.platform.Analytics
+import cx.viz.lancar.ui.course.LessonScreen
 import cx.viz.lancar.ui.drill.DrillScreen
 import cx.viz.lancar.ui.review.ReviewScreen
 import cx.viz.lancar.ui.kartu.CardDeckScreen
@@ -62,6 +63,14 @@ fun App(appModule: AppModule) {
             composable<Cards> { entry ->
                 val args = entry.toRoute<Cards>()
                 CardDeckScreen(appModule, args.moduleId, onBack = { nav.popBackStack() })
+            }
+            composable<Lesson> { entry ->
+                val args = entry.toRoute<Lesson>()
+                LessonScreen(
+                    appModule, args.lessonId,
+                    onClose = { nav.popBackStack(Main, inclusive = false) },
+                    onNextLesson = { id -> nav.navigate(Lesson(id)) { popUpTo(Main) } },
+                )
             }
             composable<Review> {
                 ReviewScreen(
