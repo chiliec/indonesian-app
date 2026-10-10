@@ -1,6 +1,7 @@
 package cx.viz.lancar.data
 
 import cx.viz.lancar.domain.Card
+import cx.viz.lancar.domain.Lesson
 import cx.viz.lancar.domain.ModuleMeta
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -12,6 +13,19 @@ import lancar.composeapp.generated.resources.Res
 @Serializable private data class ManifestEntry(val id: String, val title: String, val cardCount: Int)
 @Serializable private data class Manifest(val modules: List<ManifestEntry>)
 
+@Serializable private data class CourseFile(val lessons: List<Lesson>)
+
+// Separate Json instance: the default discriminator "type" collides with nothing here,
+// but it is set explicitly so course.json stays readable and K/N never guesses.
+private val courseJson = Json {
+    ignoreUnknownKeys = true
+    useAlternativeNames = false
+    classDiscriminator = "type"
+}
+
+internal fun parseCourse(text: String): List<Lesson> =
+    courseJson.decodeFromString(CourseFile.serializer(), text).lessons
+
 const val MIXED_ID = "mixed"
 
 open class ContentRepository {
@@ -19,6 +33,7 @@ open class ContentRepository {
     private val cacheMutex = Mutex()
     private val cardCache = mutableMapOf<String, List<Card>>()
     private var metaCache: List<ModuleMeta>? = null
+    private var courseCache: List<Lesson>? = null
 
     open suspend fun modules(): List<ModuleMeta> {
         cacheMutex.withLock { metaCache }?.let { return it }
@@ -43,5 +58,12 @@ open class ContentRepository {
         }
         cacheMutex.withLock { cardCache[moduleId] = result }
         return result
+    }
+
+    open suspend fun course(): List<Lesson> {
+        cacheMutex.withLock { courseCache }?.let { return it }
+        val list = parseCourse(Res.readBytes("files/content/course.json").decodeToString())
+        cacheMutex.withLock { courseCache = list }
+        return list
     }
 }
