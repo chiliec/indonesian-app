@@ -66,7 +66,7 @@ Match this project's module name `composeApp` and package `cx.viz.lancar`.
 
 ## Shipped features
 - **Onboarding** (2-step: welcome + optional name) — gates first cold start
-- **App shell** (2-tab floating pill bar: Beranda + Profil)
+- **App shell** (5-tab floating pill bar: Beranda, Kursus, Kartu, Progres, Profil)
 - **Profile** — edit name, pick accent color (terracotta/green/blue), reset mastery, replay onboarding, about
 - **Accent theming** — `Accent` enum + `LocalAccentColor` CompositionLocal; persisted via `SettingsRepository`
 - **Kursus** — 15-lesson guided course (Bisa Bahasa), `course.json`, linear unlock, 4 exercise types; progress in `lesson_progress`
