@@ -1,0 +1,21 @@
+CREATE TABLE lesson_progress (
+    lesson_id    TEXT NOT NULL PRIMARY KEY,
+    completed_at INTEGER NOT NULL,
+    best_score   INTEGER NOT NULL
+);
+
+selectCompleted:
+SELECT lesson_id, best_score FROM lesson_progress;
+
+insertOrIgnore:
+INSERT OR IGNORE INTO lesson_progress(lesson_id, completed_at, best_score)
+VALUES (:lessonId, :now, :score);
+
+updateBest:
+UPDATE lesson_progress SET
+    completed_at = :now,
+    best_score = MAX(best_score, :score)
+WHERE lesson_id = :lessonId;
+
+deleteAll:
+DELETE FROM lesson_progress;
