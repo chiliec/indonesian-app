@@ -69,7 +69,8 @@ Match this project's module name `composeApp` and package `cx.viz.lancar`.
 - **App shell** (2-tab floating pill bar: Beranda + Profil)
 - **Profile** — edit name, pick accent color (terracotta/green/blue), reset mastery, replay onboarding, about
 - **Accent theming** — `Accent` enum + `LocalAccentColor` CompositionLocal; persisted via `SettingsRepository`
+- **Kursus** — 15-lesson guided course (Bisa Bahasa), `course.json`, linear unlock, 4 exercise types; progress in `lesson_progress`
 
 ## Out of scope (still deferred) — clean seams exist for later
 Scenarios / Claude role-play, STT/TTS, accounts/sync, monetization, SRS scheduling,
-sentence audio, card-browse screen (Kartu tab).
+sentence audio.

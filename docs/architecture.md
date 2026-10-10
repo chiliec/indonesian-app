@@ -50,6 +50,11 @@ Pure Kotlin. No framework imports.
 
 **Schema note:** Adding the `app_settings` table (Task 1) bumped the logical schema. Existing installs require a clean reinstall to get the new table — SQLDelight 2.0.2's Gradle DSL does not expose a `schemaVersion` setter, so formal migrations are deferred until a SQLDelight upgrade.
 
+### Course (Kursus)
+- `files/content/course.json` → `ContentRepository.course()` → `List<Lesson>` (sealed `Step`: theory / build / fill / choose / type, discriminator `type`).
+- Progress: `lesson_progress(lesson_id, completed_at, best_score)` via `CourseRepository`. Unlock rule is pure: `CourseUnlock.unlockedLessonIds(order, completed)` = completed ∪ first incomplete.
+- UI: `ui/course/` — `KursusScreen` (list) → `LessonScreen` (`LessonViewModel` drives steps, `AnswerChecker` grades). Route `Lesson(lessonId)`.
+
 ### iOS entry point
 
 `iosApp/iosApp/` uses UIKit lifecycle — **not SwiftUI**:

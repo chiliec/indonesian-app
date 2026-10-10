@@ -12,6 +12,8 @@ class CourseContentTest {
         parseCourse(File("src/commonMain/composeResources/files/content/course.json").readText())
     }
 
+    @Test fun allFifteenLessonsPresent() = assertEquals(15, lessons.size)
+
     @Test fun lessonIdsAreUniqueAndNonEmpty() {
         assertTrue(lessons.isNotEmpty())
         assertEquals(lessons.size, lessons.map { it.id }.toSet().size, "duplicate lesson id")
