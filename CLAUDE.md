@@ -17,7 +17,7 @@ UI (Compose, immutable UiState, one ViewModel per screen, unidirectional data fl
 ## Build & test
 - Android: `./gradlew :composeApp:assembleDebug`
 - iOS (framework only): `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
-- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=32623728-2A40-4964-912D-252369F2692D' build`
+- iOS (full app): `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug -destination 'platform=iOS Simulator,id=F835DA01-A36C-47AE-9550-BFCE0418836D' build`
 - iOS (run on simulator): `xcrun simctl install <sim-id> <app-path> && xcrun simctl launch <sim-id> cx.viz.lancar`
 - Tests: `./gradlew :composeApp:testDebugUnitTest`
 
@@ -55,8 +55,9 @@ Always run `./gradlew` from the repo root (`/Users/babin/Develop/Pet/indonesian-
   which moved `Clock` to the stable `kotlin.time.Clock` (`@OptIn(ExperimentalTime)`); datetime is
   now pinned to 0.7.1. Kotlin stays 2.2.20; resolved coroutines stays 1.9.0 (not the cause).
 - **SQLite**: `libsqlite3.tbd` must be in the Xcode Frameworks build phase.
-- **Simulator ID**: iPhone 16 Pro (iOS 26.4) = `32623728-2A40-4964-912D-252369F2692D`.
-  (Earlier IDs `7E679B15…`/`057ACF07…` were wiped in a disk cleanup — sims aren't stable across resets.)
+- **Simulator ID**: iPhone 17 = `F835DA01-A36C-47AE-9550-BFCE0418836D`.
+  (Earlier IDs `7E679B15…`/`057ACF07…`/`32623728…` were wiped in disk cleanups/resets — sims aren't
+  stable across resets; re-check with `xcrun simctl list devices` if a launch can't find the UDID.)
 - **`open -a Simulator` before `simctl launch`/`io screenshot`** — a headless (never-foregrounded)
   sim errors "Timeout waiting for screen surfaces" and `launch` hangs.
 
